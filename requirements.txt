@@ -11,3 +11,4 @@ django-storages
 boto3
 qrcode
 pillow
+requests
