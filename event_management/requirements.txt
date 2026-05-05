@@ -9,3 +9,5 @@ whitenoise
 gunicorn
 django-storages
 boto3
+qrcode
+pillow
