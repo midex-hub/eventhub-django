@@ -11,14 +11,23 @@
               <h2 style="font-family: 'Syne', sans-serif; margin: 0;">My Profile</h2>
               <p style="color: var(--text-muted); margin: 0;">Update your personal details</p>
             </div>
+            {% if request.user.avatar %}
+            <img src="{{ request.user.avatar.url }}" alt="Profile Picture" style="width: 64px; height: 64px; border-radius: 16px; object-fit: cover;">
+            {% else %}
             <div style="width: 64px; height: 64px; background: var(--accent); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 1.75rem; font-weight: 800; color: white;">
               {{ request.user.first_name.0|default:request.user.username.0|upper }}
             </div>
+            {% endif %}
           </div>
 
-          <form method="post">
+          <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Profile Picture (Avatar)</label>
+                {{ form.avatar }}
+                {% if form.avatar.errors %}<div class="text-danger mt-1" style="font-size: 0.8rem;">{{ form.avatar.errors.0 }}</div>{% endif %}
+              </div>
               <div class="col-md-6">
                 <label class="form-label">First Name</label>
                 {{ form.first_name }}
@@ -39,6 +48,27 @@
                 {{ form.bio }}
                 {% if form.bio.errors %}<div class="text-danger mt-1" style="font-size: 0.8rem;">{{ form.bio.errors.0 }}</div>{% endif %}
               </div>
+              
+              <div class="col-12 mt-4 mb-2">
+                <h5 style="font-family: 'Syne', sans-serif; margin: 0; font-size: 1.1rem;">Social Links</h5>
+              </div>
+              
+              <div class="col-12">
+                <label class="form-label"><i class="bi bi-twitter-x me-1"></i> Twitter (X)</label>
+                {{ form.twitter_link }}
+                {% if form.twitter_link.errors %}<div class="text-danger mt-1" style="font-size: 0.8rem;">{{ form.twitter_link.errors.0 }}</div>{% endif %}
+              </div>
+              <div class="col-12">
+                <label class="form-label"><i class="bi bi-instagram me-1"></i> Instagram</label>
+                {{ form.instagram_link }}
+                {% if form.instagram_link.errors %}<div class="text-danger mt-1" style="font-size: 0.8rem;">{{ form.instagram_link.errors.0 }}</div>{% endif %}
+              </div>
+              <div class="col-12">
+                <label class="form-label"><i class="bi bi-globe me-1"></i> Website</label>
+                {{ form.website_link }}
+                {% if form.website_link.errors %}<div class="text-danger mt-1" style="font-size: 0.8rem;">{{ form.website_link.errors.0 }}</div>{% endif %}
+              </div>
+              
               {% if form.non_field_errors %}
               <div class="col-12">
                 <div class="alert alert-danger">{{ form.non_field_errors.0 }}</div>

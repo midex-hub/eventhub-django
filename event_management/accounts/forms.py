@@ -32,11 +32,15 @@ class LoginForm(AuthenticationForm):
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
 
 class ProfileUpdateForm(forms.ModelForm):
+    avatar = forms.ImageField(required=False, widget=forms.ClearableFileInput(attrs={'class': 'form-control'}))
     first_name = forms.CharField(max_length=50, required=True, widget=forms.TextInput(attrs={'placeholder': 'First name'}))
     last_name = forms.CharField(max_length=50, required=True, widget=forms.TextInput(attrs={'placeholder': 'Last name'}))
     phone = forms.CharField(max_length=20, required=False, widget=forms.TextInput(attrs={'placeholder': '+1 (555) 000-0000'}))
     bio = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': 'Tell us a bit about yourself...', 'rows': 4}))
+    twitter_link = forms.URLField(required=False, widget=forms.URLInput(attrs={'placeholder': 'https://twitter.com/yourusername'}))
+    instagram_link = forms.URLField(required=False, widget=forms.URLInput(attrs={'placeholder': 'https://instagram.com/yourusername'}))
+    website_link = forms.URLField(required=False, widget=forms.URLInput(attrs={'placeholder': 'https://yourwebsite.com'}))
 
     class Meta:
         model = CustomUser
-        fields = ['first_name', 'last_name', 'phone', 'bio']
+        fields = ['avatar', 'first_name', 'last_name', 'phone', 'bio', 'twitter_link', 'instagram_link', 'website_link']

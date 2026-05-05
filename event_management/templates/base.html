@@ -155,8 +155,13 @@
       <ul class="navbar-nav">
         {% if user.is_authenticated %}
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-            <i class="bi bi-person-circle me-1"></i> {{ user.first_name|default:user.username }}
+          <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown" style="padding-top: 0.25rem !important; padding-bottom: 0.25rem !important;">
+            {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover;">
+            {% else %}
+            <i class="bi bi-person-circle fs-5"></i>
+            {% endif %}
+            {{ user.first_name|default:user.username }}
           </a>
           <ul class="dropdown-menu dropdown-menu-end" style="background: var(--surface2); border: 1px solid var(--border);">
             <li><a class="dropdown-item text-light" href="{% url 'dashboard_redirect' %}"><i class="bi bi-grid me-2"></i>Dashboard</a></li>
