@@ -107,12 +107,3 @@ def profile_view(request):
     else:
         form = ProfileUpdateForm(instance=request.user)
     return render(request, 'accounts/profile.html', {'form': form})
-
-def create_admin_temp_view(request):
-    """Temporary hidden view to create the initial admin superuser."""
-    if not CustomUser.objects.filter(username='admin').exists():
-        CustomUser.objects.create_superuser('admin', 'admin@eventhub.local', 'Admin123!')
-        messages.success(request, 'Admin account created successfully! Username: admin, Password: Admin123!')
-    else:
-        messages.info(request, 'Admin account already exists.')
-    return redirect('login')
