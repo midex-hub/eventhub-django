@@ -26,16 +26,22 @@
 
     {% if bookings %}
     <div class="row g-3 mb-4">
-      <div class="col-6 col-lg-3">
-        <div class="stat-card">
-          <div class="stat-num">{{ bookings.count }}</div>
-          <div class="stat-label">Total Bookings</div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="stat-card d-flex align-items-center gap-3" style="padding: 1.25rem;">
+          <div class="stat-icon flex-shrink-0" style="background: rgba(59,130,246,0.15); color: #60a5fa;"><i class="bi bi-ticket-perforated"></i></div>
+          <div style="min-width: 0;">
+            <div class="stat-num text-truncate" style="font-size: clamp(1.25rem, 4vw, 1.75rem); line-height: 1.2;">{{ bookings.count }}</div>
+            <div class="stat-label">Total Bookings</div>
+          </div>
         </div>
       </div>
-      <div class="col-6 col-lg-3">
-        <div class="stat-card">
-          <div class="stat-num" style="color: #4ade80;">{{ bookings|length }}</div>
-          <div class="stat-label">Confirmed</div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="stat-card d-flex align-items-center gap-3" style="padding: 1.25rem;">
+          <div class="stat-icon flex-shrink-0" style="background: rgba(74,222,128,0.15); color: #4ade80;"><i class="bi bi-check-circle"></i></div>
+          <div style="min-width: 0;">
+            <div class="stat-num text-truncate" style="font-size: clamp(1.25rem, 4vw, 1.75rem); line-height: 1.2; color: #4ade80;">{{ bookings|length }}</div>
+            <div class="stat-label">Confirmed</div>
+          </div>
         </div>
       </div>
     </div>

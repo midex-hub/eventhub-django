@@ -29,40 +29,48 @@
 
     <!-- Stats -->
     <div class="row g-3 mb-4">
-      <div class="col-6 col-lg-3">
-        <div class="stat-card">
-          <div class="stat-icon" style="background: rgba(255,77,0,0.15); color: var(--accent);">
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="stat-card d-flex align-items-center gap-3" style="padding: 1.25rem;">
+          <div class="stat-icon flex-shrink-0" style="background: rgba(255,77,0,0.15); color: var(--accent);">
             <i class="bi bi-calendar-event"></i>
           </div>
-          <div class="stat-num mt-2">{{ events.count }}</div>
-          <div class="stat-label">Total Events</div>
+          <div style="min-width: 0;">
+            <div class="stat-num text-truncate" style="font-size: clamp(1.25rem, 4vw, 1.75rem); line-height: 1.2;">{{ events.count }}</div>
+            <div class="stat-label">Total Events</div>
+          </div>
         </div>
       </div>
-      <div class="col-6 col-lg-3">
-        <div class="stat-card">
-          <div class="stat-icon" style="background: rgba(74,222,128,0.15); color: #4ade80;">
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="stat-card d-flex align-items-center gap-3" style="padding: 1.25rem;">
+          <div class="stat-icon flex-shrink-0" style="background: rgba(74,222,128,0.15); color: #4ade80;">
             <i class="bi bi-people"></i>
           </div>
-          <div class="stat-num mt-2">{{ total_bookings }}</div>
-          <div class="stat-label">Bookings</div>
+          <div style="min-width: 0;">
+            <div class="stat-num text-truncate" style="font-size: clamp(1.25rem, 4vw, 1.75rem); line-height: 1.2;">{{ total_bookings }}</div>
+            <div class="stat-label">Bookings</div>
+          </div>
         </div>
       </div>
-      <div class="col-6 col-lg-3">
-        <div class="stat-card">
-          <div class="stat-icon" style="background: rgba(255,214,10,0.15); color: var(--accent2);">
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="stat-card d-flex align-items-center gap-3" style="padding: 1.25rem;">
+          <div class="stat-icon flex-shrink-0" style="background: rgba(255,214,10,0.15); color: var(--accent2);">
             <i class="bi bi-cash-stack"></i>
           </div>
-          <div class="fs-2 mt-2" style="color: var(--accent2);">₦{{ request.user.released_balance }}</div>
-          <div class="stat-label">Withdrawable</div>
+          <div style="min-width: 0;">
+            <div class="stat-num text-truncate" style="font-size: clamp(1.25rem, 4vw, 1.75rem); line-height: 1.2; color: var(--accent2);">₦{{ request.user.released_balance }}</div>
+            <div class="stat-label">Withdrawable</div>
+          </div>
         </div>
       </div>
-      <div class="col-6 col-lg-3">
-        <div class="stat-card">
-          <div class="stat-icon" style="background: rgba(99,102,241,0.15); color: #818cf8;">
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="stat-card d-flex align-items-center gap-3" style="padding: 1.25rem;">
+          <div class="stat-icon flex-shrink-0" style="background: rgba(99,102,241,0.15); color: #818cf8;">
             <i class="bi bi-clock-history"></i>
           </div>
-          <div class="stat-num mt-2">₦{{ request.user.pending_balance }}</div>
-          <div class="stat-label">Pending</div>
+          <div style="min-width: 0;">
+            <div class="stat-num text-truncate" style="font-size: clamp(1.25rem, 4vw, 1.75rem); line-height: 1.2;">₦{{ request.user.pending_balance }}</div>
+            <div class="stat-label">Pending</div>
+          </div>
         </div>
       </div>
     </div>
