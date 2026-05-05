@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+import threading
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -18,10 +19,11 @@ def register_view(request):
             user = form.save(commit=False)
             user.is_email_verified = True  # Auto-verify to bypass SMTP issues
             user.save()
-            try:
-                send_verification_email(user, request)
-            except Exception:
-                pass # Don't crash if email fails
+            
+            # Send email in the background to avoid timeouts
+            thread = threading.Thread(target=send_verification_email, args=(user, request))
+            thread.start()
+            
             messages.success(request, 'Registration successful! You can now log in.')
             return redirect('login')
     else:
