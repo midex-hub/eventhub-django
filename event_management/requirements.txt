@@ -7,8 +7,8 @@ django-crispy-forms
 crispy-bootstrap5
 whitenoise
 gunicorn
-django-storages
-boto3
+cloudinary
+django-cloudinary-storage
 qrcode
 pillow
 requests
