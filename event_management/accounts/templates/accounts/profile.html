@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+<div style="min-height: calc(100vh - 72px); padding: 3rem 0; background: radial-gradient(ellipse at 50% 0%, rgba(255,77,0,0.05) 0%, transparent 60%);">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 2.5rem;">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h2 style="font-family: 'Syne', sans-serif; margin: 0;">My Profile</h2>
+              <p style="color: var(--text-muted); margin: 0;">Update your personal details</p>
+            </div>
+            <div style="width: 64px; height: 64px; background: var(--accent); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 1.75rem; font-weight: 800; color: white;">
+              {{ request.user.first_name.0|default:request.user.username.0|upper }}
+            </div>
+          </div>
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">First Name</label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}<div class="text-danger mt-1" style="font-size: 0.8rem;">{{ form.first_name.errors.0 }}</div>{% endif %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Last Name</label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}<div class="text-danger mt-1" style="font-size: 0.8rem;">{{ form.last_name.errors.0 }}</div>{% endif %}
+              </div>
+              <div class="col-12">
+                <label class="form-label">Phone Number</label>
+                {{ form.phone }}
+                {% if form.phone.errors %}<div class="text-danger mt-1" style="font-size: 0.8rem;">{{ form.phone.errors.0 }}</div>{% endif %}
+              </div>
+              <div class="col-12">
+                <label class="form-label">Bio / About Me</label>
+                {{ form.bio }}
+                {% if form.bio.errors %}<div class="text-danger mt-1" style="font-size: 0.8rem;">{{ form.bio.errors.0 }}</div>{% endif %}
+              </div>
+              {% if form.non_field_errors %}
+              <div class="col-12">
+                <div class="alert alert-danger">{{ form.non_field_errors.0 }}</div>
+              </div>
+              {% endif %}
+              <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-primary w-100" style="padding: 0.85rem;">Save Changes</button>
+              </div>
+            </div>
+          </form>
+
+          <hr style="border-color: var(--border); margin: 2.5rem 0;">
+
+          <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+            <div>
+              <h5 style="font-family: 'Syne', sans-serif; margin: 0;">Password & Security</h5>
+              <p style="color: var(--text-muted); font-size: 0.875rem; margin: 0;">Change your password via email verification.</p>
+            </div>
+            <a href="{% url 'password_reset' %}" class="btn btn-outline-light">Change Password</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

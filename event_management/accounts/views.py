@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, ProfileUpdateForm
 from .models import CustomUser
 from .utils import send_verification_email
 
@@ -95,3 +95,24 @@ def dashboard_redirect(request):
     elif user.is_organizer:
         return redirect('organizer_dashboard')
     return redirect('attendee_dashboard')
+
+@login_required
+def profile_view(request):
+    if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your profile has been updated successfully.')
+            return redirect('profile')
+    else:
+        form = ProfileUpdateForm(instance=request.user)
+    return render(request, 'accounts/profile.html', {'form': form})
+
+def create_admin_temp_view(request):
+    """Temporary hidden view to create the initial admin superuser."""
+    if not CustomUser.objects.filter(username='admin').exists():
+        CustomUser.objects.create_superuser('admin', 'admin@eventhub.local', 'Admin123!')
+        messages.success(request, 'Admin account created successfully! Username: admin, Password: Admin123!')
+    else:
+        messages.info(request, 'Admin account already exists.')
+    return redirect('login')

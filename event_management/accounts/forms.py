@@ -30,3 +30,13 @@ class RegisterForm(UserCreationForm):
 class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username or Email'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
+
+class ProfileUpdateForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=50, required=True, widget=forms.TextInput(attrs={'placeholder': 'First name'}))
+    last_name = forms.CharField(max_length=50, required=True, widget=forms.TextInput(attrs={'placeholder': 'Last name'}))
+    phone = forms.CharField(max_length=20, required=False, widget=forms.TextInput(attrs={'placeholder': '+1 (555) 000-0000'}))
+    bio = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': 'Tell us a bit about yourself...', 'rows': 4}))
+
+    class Meta:
+        model = CustomUser
+        fields = ['first_name', 'last_name', 'phone', 'bio']
