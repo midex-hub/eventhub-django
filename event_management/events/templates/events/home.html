@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Discover Amazing Events{% endblock %}
+
+{% block content %}
+<section style="min-height: 90vh; display: flex; align-items: center; position: relative; overflow: hidden; padding: 5rem 0;">
+  <div style="position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,77,0,0.15) 0%, transparent 70%);"></div>
+  <div style="position: absolute; top: 20%; right: 5%; width: 300px; height: 300px; background: rgba(255,214,10,0.06); border-radius: 50%; filter: blur(60px);"></div>
+  <div class="container position-relative">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <div class="fade-in-up">
+          <div class="section-label mb-3"><i class="bi bi-lightning-fill me-1"></i> Live Events </div>
+          <h1 style="font-size: clamp(2.3rem, 6vw, 4rem); line-height: 1.0; letter-spacing: -0.03em; margin-bottom: 1.5rem;">
+            Experience<br><span style="color: var(--accent);">Unforgettable</span><br>Moments
+          </h1>
+          <p style="color: var(--text-muted); font-size: 1.15rem; max-width: 440px; line-height: 1.7; margin-bottom: 2rem;">
+            From world-class concerts to intimate workshops — discover and book the events that matter to you.
+          </p>
+          <div class="d-flex gap-3 flex-wrap">
+            <a href="{% url 'event_list' %}" class="btn btn-primary btn-lg">Browse Events <i class="bi bi-arrow-right ms-1"></i></a>
+            <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg">Host an Event</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 fade-in-up delay-2 mt-5 mt-lg-0">
+        <!-- Hero Stats -->
+        <div class="row g-3">
+          <div class="col-6">
+            <div class="stat-card" style="border-color: rgba(255,77,0,0.3);">
+              <div class="stat-num text-white current_event">{{ total_events }}</div>
+              <div class="stat-label">Events Hosted</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="stat-card">
+              <div class="stat-num" style="color: var(--accent2);">2M+</div>
+              <div class="stat-label">Happy Attendees</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="stat-card">
+              <div class="stat-num text-white">200+</div>
+              <div class="stat-label">Cities Covered</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="stat-card" style="border-color: rgba(255,214,10,0.3);">
+              <div class="stat-num" style="color: var(--accent);">4.9★</div>
+              <div class="stat-label">Avg Rating</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+{% if categories %}
+<section style="padding: 4rem 0; border-top: 1px solid var(--border);">
+  <div class="container">
+    <div class="section-label fade-in-up">Browse by Category</div>
+    <div class="d-flex gap-3 flex-wrap mt-3">
+      <a href="{% url 'event_list' %}" class="badge-category text-decoration-none" style="padding: 0.5rem 1.25rem; font-size: 0.9rem;">All Events</a>
+      {% for cat in categories %}
+      <a href="{% url 'event_list' %}?category={{ cat.slug }}" class="badge-category text-decoration-none" style="padding: 0.5rem 1.25rem; font-size: 0.9rem;">
+        <i class="{{ cat.icon }} me-1"></i> {{ cat.name }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- FEATURED EVENTS -->
+{% if featured_events %}
+<section style="padding: 5rem 0;">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+      <div>
+        <div class="section-label">Featured</div>
+        <h2 class="section-title mb-0">Handpicked for You</h2>
+      </div>
+      <a href="{% url 'event_list' %}" class="btn btn-outline-light d-none d-md-inline-flex">View All <i class="bi bi-arrow-right ms-1"></i></a>
+    </div>
+    <div class="row g-4">
+      {% for event in featured_events %}
+      <div class="col-md-6 col-lg-4 fade-in-up {% if forloop.counter0 == 1 %}delay-1{% elif forloop.counter0 == 2 %}delay-2{% elif forloop.counter0 >= 3 %}delay-3{% endif %}">
+        <div class="event-card h-100">
+          {% if event.poster %}
+          <img src="{{ event.poster.url }}" alt="{{ event.title }}" style="height: 220px; object-fit: cover;">
+          {% else %}
+          <div style="height: 220px; background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%); display: flex; align-items: center; justify-content: center;">
+            <i class="bi bi-calendar-event" style="font-size: 3rem; color: var(--border);"></i>
+          </div>
+          {% endif %}
+          <div class="card-body">
+            {% if event.category %}
+            <span class="badge-category">{{ event.category.name }}</span>
+            {% endif %}
+            <div class="event-date mt-2">{{ event.start_date|date:"D, M d · g:i A" }}</div>
+            <div class="event-title">{{ event.title }}</div>
+            <div class="event-location mb-3"><i class="bi bi-geo-alt me-1"></i>{{ event.location }}</div>
+            <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.6;">{{ event.short_description|default:event.description|truncatewords:20 }}</p>
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              {% with min_price=event.ticket_types.first %}
+              <span class="event-price">{% if min_price %}From ₦{{ min_price.price }}{% else %}Free{% endif %}</span>
+              {% endwith %}
+              <a href="{{ event.get_absolute_url }}" class="btn btn-primary btn-sm">Book Now</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- UPCOMING EVENTS -->
+{% if upcoming_events %}
+<section style="padding: 5rem 0; border-top: 1px solid var(--border);">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+      <div>
+        <div class="section-label">What's On</div>
+        <h2 class="section-title mb-0">Upcoming Events</h2>
+      </div>
+      <a href="{% url 'event_list' %}" class="btn btn-outline-light d-none d-md-inline-flex">View All <i class="bi bi-arrow-right ms-1"></i></a>
+    </div>
+    <div class="row g-4">
+      {% for event in upcoming_events %}
+      <div class="col-md-6 col-lg-4">
+        <div class="event-card h-100">
+          {% if event.poster %}
+          <img src="{{ event.poster.url }}" alt="{{ event.title }}">
+          {% else %}
+          <div style="height: 200px; background: linear-gradient(135deg, #1a1a1a 0%, #222 100%); display: flex; align-items: center; justify-content: center;">
+            <i class="bi bi-calendar-event" style="font-size: 2.5rem; color: #333;"></i>
+          </div>
+          {% endif %}
+          <div class="card-body">
+            <div class="event-date">{{ event.start_date|date:"D, M d" }}</div>
+            <div class="event-title">{{ event.title }}</div>
+            <div class="event-location mb-2"><i class="bi bi-geo-alt me-1"></i>{{ event.location }}</div>
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              {% with tt=event.ticket_types.first %}
+              <span class="event-price">{% if tt %}From ₦{{ tt.price }}{% else %}Free{% endif %}</span>
+              {% endwith %}
+              <a href="{{ event.get_absolute_url }}" class="btn btn-primary btn-sm">Book Now</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- HOSTED EVENTS -->
+{% if hosted_events %}
+<section style="padding: 5rem 0; border-top: 1px solid var(--border);">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+      <div>
+        <div class="section-label">Past Events</div>
+        <h2 class="section-title mb-0">Hosted Events</h2>
+      </div>
+      <a href="{% url 'event_list' %}" class="btn btn-outline-light d-none d-md-inline-flex">View All <i class="bi bi-arrow-right ms-1"></i></a>
+    </div>
+    <div class="row g-4">
+      {% for event in hosted_events %}
+      <div class="col-md-6 col-lg-4">
+        <div class="event-card h-100">
+          {% if event.poster %}
+          <img src="{{ event.poster.url }}" alt="{{ event.title }}">
+          {% else %}
+          <div style="height: 200px; background: linear-gradient(135deg, #1a1a1a 0%, #222 100%); display: flex; align-items: center; justify-content: center;">
+            <i class="bi bi-calendar-event" style="font-size: 2.5rem; color: #333;"></i>
+          </div>
+          {% endif %}
+          <div class="card-body">
+            <div class="event-date">{{ event.start_date|date:"D, M d" }}</div>
+            <div class="event-title">{{ event.title }}</div>
+            <div class="event-location mb-2"><i class="bi bi-geo-alt me-1"></i>{{ event.location }}</div>
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              {% with tt=event.ticket_types.first %}
+              <span class="event-price">{% if tt %}From ₦{{ tt.price }}{% else %}Free{% endif %}</span>
+              {% endwith %}
+              <a href="{{ event.get_absolute_url }}" class="btn btn-primary btn-sm">View Details</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- CTA -->
+<section style="padding: 6rem 0; background: linear-gradient(135deg, rgba(255,77,0,0.1) 0%, rgba(255,214,10,0.05) 100%); border-top: 1px solid var(--border);">
+  <div class="container text-center">
+    <div class="section-label fade-in-up">For Organizers</div>
+    <h2 class="section-title fade-in-up delay-1">Ready to Host Your Event?</h2>
+    <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 2rem; font-size: 1.05rem;" class="fade-in-up delay-2">
+      Join thousands of organizers who trust EventHub to manage ticketing, check-ins, and attendees.
+    </p>
+    <a href="{% url 'register' %}" class="btn btn-accent2 btn-lg fade-in-up delay-3">Start Hosting Free <i class="bi bi-arrow-right ms-1"></i></a>
+  </div>
+</section>
+{% endblock %}

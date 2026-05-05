@@ -1,0 +1,10 @@
+Django>=4.0
+mysqlclient
+python-dotenv
+django-crispy-forms
+crispy-bootstrap5
+whitenoise
+psycopg2-binary  # Common if moving to PostgreSQL later
+gunicorn         # For production deployment
+django-storages  # Seen in settings.py for AWS S3
+boto3            # For S3 support

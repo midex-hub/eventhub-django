@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %}Organizer Dashboard{% endblock %}
+{% block content %}
+<div class="d-flex" style="min-height: calc(100vh - 72px);">
+  <!-- Sidebar -->
+  <div class="sidebar d-none d-lg-block" style="width: 240px; flex-shrink: 0;">
+    <div style="padding: 0 1rem 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem;">
+      <div style="width: 48px; height: 48px; background: var(--accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 1.25rem; font-weight: 800; margin-bottom: 0.75rem;">{{ request.user.first_name.0|default:request.user.username.0|upper }}</div>
+      <div style="font-weight: 600; font-family: 'Syne', sans-serif;">{{ request.user.get_full_name|default:request.user.username }}</div>
+      <div style="color: var(--text-muted); font-size: 0.8rem;">Organizer</div>
+    </div>
+    <a class="sidebar-link active" href="{% url 'organizer_dashboard' %}"><i class="bi bi-grid"></i> Dashboard</a>
+    <a class="sidebar-link" href="{% url 'request_withdrawal' %}"><i class="bi bi-wallet2"></i> Withdraw</a>
+    <a class="sidebar-link" href="{% url 'create_event' %}"><i class="bi bi-plus-circle"></i> Create Event</a>
+    <a class="sidebar-link" href="{% url 'checkin' %}"><i class="bi bi-qr-code-scan"></i> Check-in</a>
+    <a class="sidebar-link" href="{% url 'event_list' %}"><i class="bi bi-calendar-event"></i> View Events</a>
+    <a class="sidebar-link" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> Logout</a>
+  </div>
+
+  <!-- Main -->
+  <div style="flex: 1; padding: 2rem;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 style="font-family: 'Syne', sans-serif; margin: 0;">Organizer Dashboard</h2>
+        <p style="color: var(--text-muted); margin: 0;">Manage your events</p>
+      </div>
+      <a href="{% url 'create_event' %}" class="btn btn-primary"><i class="bi bi-plus me-1"></i>New Event</a>
+    </div>
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(255,77,0,0.15); color: var(--accent);">
+            <i class="bi bi-calendar-event"></i>
+          </div>
+          <div class="stat-num mt-2">{{ events.count }}</div>
+          <div class="stat-label">Total Events</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(74,222,128,0.15); color: #4ade80;">
+            <i class="bi bi-people"></i>
+          </div>
+          <div class="stat-num mt-2">{{ total_bookings }}</div>
+          <div class="stat-label">Bookings</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(255,214,10,0.15); color: var(--accent2);">
+            <i class="bi bi-cash-stack"></i>
+          </div>
+          <div class="fs-2 mt-2" style="color: var(--accent2);">₦{{ request.user.released_balance }}</div>
+          <div class="stat-label">Withdrawable</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(99,102,241,0.15); color: #818cf8;">
+            <i class="bi bi-clock-history"></i>
+          </div>
+          <div class="stat-num mt-2">₦{{ request.user.pending_balance }}</div>
+          <div class="stat-label">Pending</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Events Table -->
+    {% if events %}
+    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;">
+      <div style="padding: 1.5rem 1.5rem 0; display: flex; justify-content: space-between; align-items: center;">
+        <h5 style="font-family: 'Syne', sans-serif; margin: 0;">My Events</h5>
+      </div>
+      <table class="table table-hover mt-3 mb-0">
+        <thead>
+          <tr><th>Event</th><th>Date</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for event in events %}
+          <tr>
+            <td>
+              <div class="d-flex align-items-center gap-3">
+                {% if event.poster %}
+                <img src="{{ event.poster.url }}" style="width: 48px; height: 40px; object-fit: cover; border-radius: 6px;">
+                {% else %}
+                <div style="width: 48px; height: 40px; background: var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center;"><i class="bi bi-calendar-event" style="color: #555;"></i></div>
+                {% endif %}
+                <div>
+                  <div style="font-weight: 600;">{{ event.title|truncatewords:5 }}</div>
+                  <div style="color: var(--text-muted); font-size: 0.8rem;">{{ event.location|truncatechars:30 }}</div>
+                </div>
+              </div>
+            </td>
+            <td style="color: var(--text-muted);">{{ event.start_date|date:"M d, Y" }}</td>
+            <td><span class="status-badge {% if event.status == 'published' %}status-confirmed{% elif event.status == 'draft' %}status-pending{% else %}status-cancelled{% endif %}">{{ event.get_status_display }}</span></td>
+            <td>
+              <div class="d-flex gap-2">
+                <a href="{% url 'edit_event' event.id %}" class="btn btn-outline-light btn-sm"><i class="bi bi-pencil"></i></a>
+                <a href="{% url 'event_attendees' event.id %}" class="btn btn-outline-light btn-sm"><i class="bi bi-people"></i></a>
+                <a href="{{ event.get_absolute_url }}" class="btn btn-outline-light btn-sm"><i class="bi bi-eye"></i></a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 4rem; text-align: center;">
+      <i class="bi bi-calendar-plus" style="font-size: 3.5rem; color: var(--border);"></i>
+      <h3 style="font-family: 'Syne', sans-serif; margin-top: 1rem;">No events yet</h3>
+      <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Create your first event to start selling tickets!</p>
+      <a href="{% url 'create_event' %}" class="btn btn-primary">Create Event</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

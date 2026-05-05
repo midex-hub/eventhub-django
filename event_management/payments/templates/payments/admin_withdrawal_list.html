@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Manage Withdrawals{% endblock %}
+{% block content %}
+<div class="d-flex" style="min-height: calc(100vh - 72px);">
+  <!-- Sidebar (reuse admin sidebar if possible, or just build simple one) -->
+  <div class="sidebar d-none d-lg-block" style="width: 240px; flex-shrink: 0;">
+    <div style="padding: 0 1rem 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem;">
+      <div style="width: 48px; height: 48px; background: #818cf8; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 0.75rem;"><i class="bi bi-shield-check text-white"></i></div>
+      <div style="font-weight: 600; font-family: 'Syne', sans-serif;">{{ request.user.username }}</div>
+      <div style="color: var(--text-muted); font-size: 0.8rem;">Administrator</div>
+    </div>
+    <a class="sidebar-link" href="{% url 'admin_dashboard' %}"><i class="bi bi-grid"></i> Dashboard</a>
+    <a class="sidebar-link active" href="{% url 'admin_withdrawal_list' %}"><i class="bi bi-wallet2"></i> Withdrawals</a>
+    <a class="sidebar-link" href="{% url 'admin_user_list' %}"><i class="bi bi-people"></i> Users</a>
+  </div>
+
+  <!-- Main -->
+  <div style="flex: 1; padding: 2rem;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 style="font-family: 'Syne', sans-serif; margin: 0;">Withdrawal Requests</h2>
+        <p style="color: var(--text-muted); margin: 0;">Manage payouts and platform commissions</p>
+      </div>
+    </div>
+
+    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>Organizer</th>
+            <th>Amount</th>
+            <th>Payout (90%)</th>
+            <th>Bank Details</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for w in withdrawals %}
+          <tr>
+            <td>
+              <div style="font-weight: 600;">{{ w.user.username }}</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">{{ w.created_at|date:"M d, Y" }}</div>
+            </td>
+            <td>₦{{ w.amount_requested }}</td>
+            <td style="color: #4ade80; font-weight: 600;">₦{{ w.payout_amount }}</td>
+            <td style="font-size: 0.85rem;">
+              <div>{{ w.bank_name }}</div>
+              <div style="font-family: monospace;">{{ w.account_number }}</div>
+              <div style="color: var(--text-muted);">{{ w.account_name }}</div>
+            </td>
+            <td>
+              <span class="status-badge 
+                {% if w.status == 'completed' %}status-confirmed
+                {% elif w.status == 'rejected' %}status-cancelled
+                {% else %}status-pending{% endif %}">
+                {{ w.get_status_display }}
+              </span>
+            </td>
+            <td>
+              {% if w.status == 'pending' %}
+              <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal-{{ w.id }}">Process</button>
+              
+              <!-- Modal -->
+              <div class="modal fade" id="modal-{{ w.id }}" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content" style="background: var(--card-bg); border: 1px solid var(--border);">
+                    <form action="{% url 'complete_withdrawal' w.id %}" method="post">
+                      {% csrf_token %}
+                      <div class="modal-header">
+                        <h5 class="modal-title" style="font-family: 'Syne', sans-serif;">Process Withdrawal</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" style="filter: invert(1);"></button>
+                      </div>
+                      <div class="modal-body">
+                        <p>Confirm that you have transferred <strong>₦{{ w.payout_amount }}</strong> to:</p>
+                        <div style="background: var(--surface2); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
+                          <div><strong>{{ w.account_name }}</strong></div>
+                          <div>{{ w.bank_name }} - {{ w.account_number }}</div>
+                        </div>
+                        <label class="form-label">Admin Note (Optional)</label>
+                        <textarea name="admin_note" class="form-control mb-3" placeholder="Reference number or reason for rejection"></textarea>
+                        
+                        <div class="d-flex gap-2">
+                          <button type="submit" name="action" value="complete" class="btn btn-success flex-grow-1">Mark as Completed</button>
+                          <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              {% else %}
+              <span style="font-size: 0.8rem; color: var(--text-muted);">{{ w.admin_note|default:"—" }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" class="text-center py-5" style="color: var(--text-muted);">No withdrawal requests found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

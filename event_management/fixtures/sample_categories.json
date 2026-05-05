@@ -1,0 +1,8 @@
+[
+  {"model": "events.category", "pk": 1, "fields": {"name": "Music", "slug": "music", "icon": "bi-music-note-beamed", "color": "#FF4D00", "description": "Concerts, festivals, live performances"}},
+  {"model": "events.category", "pk": 2, "fields": {"name": "Technology", "slug": "technology", "icon": "bi-cpu", "color": "#6366f1", "description": "Tech conferences and workshops"}},
+  {"model": "events.category", "pk": 3, "fields": {"name": "Business", "slug": "business", "icon": "bi-briefcase", "color": "#10b981", "description": "Networking and business events"}},
+  {"model": "events.category", "pk": 4, "fields": {"name": "Arts", "slug": "arts", "icon": "bi-palette", "color": "#f59e0b", "description": "Art exhibitions and cultural events"}},
+  {"model": "events.category", "pk": 5, "fields": {"name": "Sports", "slug": "sports", "icon": "bi-trophy", "color": "#3b82f6", "description": "Sports events and competitions"}},
+  {"model": "events.category", "pk": 6, "fields": {"name": "Food & Drink", "slug": "food", "icon": "bi-cup-hot", "color": "#ec4899", "description": "Food festivals and culinary events"}}
+]

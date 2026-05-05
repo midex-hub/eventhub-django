@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}QR Check-in{% endblock %}
+{% block content %}
+<div style="padding: 3rem 0 2rem; border-bottom: 1px solid var(--border);">
+  <div class="container">
+    <a href="{% url 'organizer_dashboard' %}" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;"><i class="bi bi-arrow-left me-1"></i> Dashboard</a>
+    <h1 style="font-family: 'Syne', sans-serif; margin-top: 1rem;"><i class="bi bi-qr-code-scan me-2"></i>QR Check-in</h1>
+  </div>
+</div>
+<div class="container" style="padding: 2rem 0 4rem;">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      {% if result == 'success' %}
+      <div class="alert alert-success d-flex align-items-center gap-2 mb-4"><i class="bi bi-check-circle-fill fs-4"></i><div><strong>Check-in Successful!</strong><br>{{ qr.booking_item.booking.event.title }} — {{ qr.booking_item.ticket_type.name }}</div></div>
+      {% elif result == 'already_used' %}
+      <div class="alert alert-danger d-flex align-items-center gap-2 mb-4"><i class="bi bi-exclamation-triangle-fill fs-4"></i><div><strong>Already Used!</strong><br>This ticket was already checked in at {{ qr.used_at|date:"g:i A" }}.</div></div>
+      {% elif result == 'invalid' %}
+      <div class="alert alert-danger d-flex align-items-center gap-2 mb-4"><i class="bi bi-x-circle-fill fs-4"></i><strong>Invalid QR code. Ticket not found.</strong></div>
+      {% endif %}
+
+      <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2rem;">
+        <h4 style="font-family: 'Syne', sans-serif; margin-bottom: 1.5rem;">Scan or Enter QR Code</h4>
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">QR Code</label>
+            <input type="text" name="qr_code" class="form-control" placeholder="Scan or type QR code..." autofocus style="font-family: monospace; font-size: 1rem;">
+          </div>
+          <button type="submit" class="btn btn-primary w-100" style="padding: 0.85rem;"><i class="bi bi-qr-code-scan me-2"></i>Verify & Check In</button>
+        </form>
+        <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+          <p style="color: var(--text-muted); font-size: 0.875rem; text-align: center;">Or use a QR scanner connected to this device.<br>The scanner should be set to keyboard emulation mode.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

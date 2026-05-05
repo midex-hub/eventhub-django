@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% block title %}{{ event.title }}{% endblock %}
+{% block content %}
+<div style="position: relative; height: 400px; overflow: hidden;">
+  {% if event.poster %}
+  <img src="{{ event.poster.url }}" alt="{{ event.title }}" style="width: 100%; height: 100%; object-fit: cover;">
+  {% else %}
+  <div style="height: 100%; background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);"></div>
+  {% endif %}
+  <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(10,10,10,0.9) 100%);"></div>
+  <div class="container h-100 d-flex align-items-end pb-4 position-relative">
+    <div>
+      {% if event.category %}<span class="badge-category">{{ event.category.name }}</span>{% endif %}
+      <h1 style="font-size: clamp(1.8rem, 4vw, 3rem); margin: 0.5rem 0; max-width: 700px;">{{ event.title }}</h1>
+      <div class="d-flex flex-wrap gap-3" style="color: var(--text-muted);">
+        <span><i class="bi bi-calendar3 me-1 text-warning"></i>{{ event.start_date|date:"l, F d, Y" }}</span>
+        <span><i class="bi bi-clock me-1 text-warning"></i>{{ event.start_date|date:"g:i A" }} – {{ event.end_date|date:"g:i A" }}</span>
+        <span><i class="bi bi-geo-alt me-1 text-warning"></i>{{ event.location }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="padding: 3rem 0;">
+  <div class="row g-5">
+    <!-- Main Content -->
+    <div class="col-lg-8">
+      <!-- Description -->
+      <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2rem;">
+        <h3 style="font-family: 'Syne', sans-serif; margin-bottom: 1rem;">About This Event</h3>
+        <div style="color: var(--text-muted); line-height: 1.8; white-space: pre-wrap;">{{ event.description }}</div>
+      </div>
+
+      <!-- Schedule -->
+      {% if event.schedule %}
+      <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2rem;">
+        <h3 style="font-family: 'Syne', sans-serif; margin-bottom: 1rem;"><i class="bi bi-list-ul me-2 text-warning"></i>Schedule</h3>
+        <div style="color: var(--text-muted); line-height: 1.8; white-space: pre-wrap;">{{ event.schedule }}</div>
+      </div>
+      {% endif %}
+
+      <!-- Speakers -->
+      {% if speakers %}
+      <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2rem;">
+        <h3 style="font-family: 'Syne', sans-serif; margin-bottom: 1.5rem;"><i class="bi bi-mic me-2 text-warning"></i>Speakers</h3>
+        <div class="row g-3">
+          {% for speaker in speakers %}
+          <div class="col-sm-6">
+            <div class="d-flex gap-3 align-items-center p-3" style="background: var(--surface2); border-radius: 12px; border: 1px solid var(--border);">
+              {% if speaker.photo %}
+              <img src="{{ speaker.photo.url }}" alt="{{ speaker.name }}" style="width: 56px; height: 56px; border-radius: 50%; object-fit: cover;">
+              {% else %}
+              <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center;"><i class="bi bi-person fs-4"></i></div>
+              {% endif %}
+              <div>
+                <div style="font-weight: 600; font-family: 'Syne', sans-serif;">{{ speaker.name }}</div>
+                <div style="color: var(--text-muted); font-size: 0.85rem;">{{ speaker.title }}</div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Location Map -->
+      <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2rem;">
+        <h3 style="font-family: 'Syne', sans-serif; margin-bottom: 1rem;"><i class="bi bi-map me-2 text-warning"></i>Location</h3>
+        <p style="color: var(--text-muted);">{{ event.location }}</p>
+        <div style="background: var(--surface2); border-radius: 12px; height: 250px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border);">
+          <div class="text-center"><i class="bi bi-map" style="font-size: 2rem; color: var(--border);"></i><br><span style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem; display: block;">Google Maps — configure API key</span></div>
+        </div>
+      </div>
+
+      <!-- Organizer -->
+      <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 2rem;">
+        <h3 style="font-family: 'Syne', sans-serif; margin-bottom: 1rem;">Organized by</h3>
+        <div class="d-flex gap-3 align-items-center">
+          <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.25rem;">{{ event.organizer.first_name.0|default:event.organizer.username.0|upper }}</div>
+          <div>
+            <div style="font-weight: 600; font-family: 'Syne', sans-serif;">{{ event.organizer.get_full_name|default:event.organizer.username }}</div>
+            <div style="color: var(--text-muted); font-size: 0.875rem;">Event Organizer</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Booking Sidebar -->
+    <div class="col-lg-4">
+      <div style="position: sticky; top: 90px;">
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2rem;">
+          <h3 style="font-family: 'Syne', sans-serif; margin-bottom: 1.5rem;">Get Tickets</h3>
+          {% if ticket_types %}
+          {% for tt in ticket_types %}
+          <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 0.75rem;">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div style="font-weight: 600;">{{ tt.name }}</div>
+                {% if tt.description %}<div style="color: var(--text-muted); font-size: 0.8rem;">{{ tt.description }}</div>{% endif %}
+                <div style="color: var(--accent2); font-weight: 700; font-size: 1.1rem; margin-top: 0.25rem;">₦{{ tt.price }}</div>
+              </div>
+              <div class="text-end">
+                {% if tt.is_sold_out %}
+                <span style="color: #f87171; font-size: 0.8rem; font-weight: 600;">SOLD OUT</span>
+                {% else %}
+                <span style="color: #4ade80; font-size: 0.8rem;">{{ tt.quantity_available }} left</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+          {% if user.is_authenticated %}
+          <a href="{% url 'checkout' event.slug %}" class="btn btn-primary w-100 mt-2" style="padding: 0.85rem;">Book Now <i class="bi bi-ticket-perforated ms-1"></i></a>
+          {% else %}
+          <a href="{% url 'register' %}?next={% url 'checkout' event.slug|urlencode %}" class="btn btn-primary w-100 mt-2" style="padding: 0.85rem;">Book Now <i class="bi bi-ticket-perforated ms-1"></i></a>
+          {% endif %}
+          {% else %}
+          <p style="color: var(--text-muted); text-align: center; padding: 1rem 0;">Tickets not available yet.</p>
+          {% endif %}
+
+          <div class="mt-3 pt-3" style="border-top: 1px solid var(--border);">
+            <div style="color: var(--text-muted); font-size: 0.8rem; text-align: center; margin-bottom: 1rem;">Share this event</div>
+            <div class="d-flex gap-2 justify-content-center">
+              <a href="https://twitter.com/intent/tweet?text={{ event.title|urlencode }}&url={{ request.build_absolute_uri }}" target="_blank" class="btn btn-outline-light btn-sm"><i class="bi bi-twitter-x"></i></a>
+              <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="btn btn-outline-light btn-sm"><i class="bi bi-facebook"></i></a>
+              <button onclick="navigator.clipboard.writeText(window.location.href).then(()=>alert('Link copied!'))" class="btn btn-outline-light btn-sm"><i class="bi bi-link-45deg"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related Events -->
+  {% if related_events %}
+  <div class="mt-5 pt-5" style="border-top: 1px solid var(--border);">
+    <div class="section-label">You May Also Like</div>
+    <h2 class="section-title">Similar Events</h2>
+    <div class="row g-4 mt-2">
+      {% for ev in related_events %}
+      <div class="col-md-4">
+        <div class="event-card">
+          {% if ev.poster %}<img src="{{ ev.poster.url }}" alt="{{ ev.title }}">{% else %}<div style="height: 180px; background: #1a1a1a;"></div>{% endif %}
+          <div class="card-body">
+            <div class="event-date">{{ ev.start_date|date:"M d, Y" }}</div>
+            <div class="event-title">{{ ev.title }}</div>
+            <a href="{{ ev.get_absolute_url }}" class="btn btn-outline-light btn-sm mt-2">View Event</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

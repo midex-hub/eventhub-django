@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block title %}Request Withdrawal{% endblock %}
+{% block content %}
+<div style="padding: 3rem 0; background: radial-gradient(ellipse at 50% 0%, rgba(255,214,10,0.06) 0%, transparent 60%);">
+  <div class="container">
+    <h1 style="font-family: 'Syne', sans-serif;">Request Withdrawal</h1>
+    <p style="color: var(--text-muted);">Transfer your earnings to your bank account.</p>
+  </div>
+</div>
+
+<div class="container" style="padding: 2rem 0 4rem;">
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <!-- Balance Info -->
+      <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem;">
+        <div class="stat-label mb-1">Withdrawable Balance</div>
+        <div style="font-size: 2.5rem; font-weight: 800; font-family: 'Syne', sans-serif; color: var(--accent2);">₦{{ released_balance }}</div>
+        
+        <div style="border-top: 1px solid var(--border); margin-top: 1.5rem; padding-top: 1.5rem;">
+          <div class="d-flex justify-content-between mb-2">
+            <span style="color: var(--text-muted);">Pending Funds</span>
+            <span style="font-weight: 600;">₦{{ pending_balance }}</span>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">
+            <i class="bi bi-info-circle me-1"></i> Funds are released 24 hours before the event starts to prevent scams.
+          </div>
+        </div>
+      </div>
+      
+      <div style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2); border-radius: 12px; padding: 1rem;">
+        <h6 style="color: #818cf8; font-family: 'Syne', sans-serif;"><i class="bi bi-shield-check me-2"></i>Admin Commission</h6>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">A 10% administrative fee will be deducted from your withdrawal amount.</p>
+      </div>
+    </div>
+    
+    <div class="col-lg-8">
+      <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem;">
+        <h5 style="font-family: 'Syne', sans-serif; margin-bottom: 2rem;">Withdrawal Details</h5>
+        
+        <form method="post">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-12">
+              <label class="form-label" style="font-weight: 500;">Amount to Withdraw (₦)</label>
+              {{ form.amount_requested }}
+              <div class="form-text">Enter the amount you want to withdraw. Max: ₦{{ released_balance }}</div>
+              {% if form.amount_requested.errors %}<div class="text-danger mt-1">{{ form.amount_requested.errors }}</div>{% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label" style="font-weight: 500;">Bank Name</label>
+              {{ form.bank_name }}
+              {% if form.bank_name.errors %}<div class="text-danger mt-1">{{ form.bank_name.errors }}</div>{% endif %}
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label" style="font-weight: 500;">Account Number</label>
+              {{ form.account_number }}
+              {% if form.account_number.errors %}<div class="text-danger mt-1">{{ form.account_number.errors }}</div>{% endif %}
+            </div>
+            
+            <div class="col-md-12">
+              <label class="form-label" style="font-weight: 500;">Account Name</label>
+              {{ form.account_name }}
+              {% if form.account_name.errors %}<div class="text-danger mt-1">{{ form.account_name.errors }}</div>{% endif %}
+            </div>
+          </div>
+          
+          <div style="background: var(--surface2); border-radius: 12px; padding: 1.5rem; margin-top: 2rem; margin-bottom: 2rem;">
+            <div class="d-flex justify-content-between mb-2">
+              <span style="color: var(--text-muted);">Request Amount:</span>
+              <span id="display-amount">₦0.00</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span style="color: var(--text-muted);">Platform Fee (10%):</span>
+              <span id="display-fee" style="color: var(--accent);">₦0.00</span>
+            </div>
+            <div class="d-flex justify-content-between pt-2" style="border-top: 1px solid var(--border); font-weight: 700; font-size: 1.1rem;">
+              <span>Total Payout:</span>
+              <span id="display-payout" style="color: #4ade80;">₦0.00</span>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn btn-primary w-100" style="padding: 1rem; font-size: 1.1rem;">
+            Confirm Withdrawal Request
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const amountInput = document.getElementById('id_amount_requested');
+  const displayAmount = document.getElementById('display-amount');
+  const displayFee = document.getElementById('display-fee');
+  const displayPayout = document.getElementById('display-payout');
+
+  amountInput.addEventListener('input', function() {
+    const val = parseFloat(this.value) || 0;
+    const fee = val * 0.10;
+    const payout = val - fee;
+    
+    displayAmount.innerText = '₦' + val.toLocaleString(undefined, {minimumFractionDigits: 2});
+    displayFee.innerText = '-₦' + fee.toLocaleString(undefined, {minimumFractionDigits: 2});
+    displayPayout.innerText = '₦' + payout.toLocaleString(undefined, {minimumFractionDigits: 2});
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block title %}Checkout - {{ event.title }}{% endblock %}
+{% block content %}
+<div style="padding: 3rem 0; background: radial-gradient(ellipse at 50% 0%, rgba(255,77,0,0.06) 0%, transparent 60%);">
+  <div class="container">
+    <a href="{{ event.get_absolute_url }}" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;"><i class="bi bi-arrow-left me-1"></i> Back to event</a>
+    <h1 style="font-family: 'Syne', sans-serif; margin: 1rem 0 0.25rem;">Checkout</h1>
+    <p style="color: var(--text-muted);">{{ event.title }}</p>
+  </div>
+</div>
+
+<div class="container" style="padding: 2rem 0 4rem;">
+  <div class="row g-5">
+    <div class="col-lg-7">
+      <form method="post" id="checkout-form">
+        {% csrf_token %}
+        <!-- Ticket Selection -->
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem;">
+          <h4 style="font-family: 'Syne', sans-serif; margin-bottom: 1.5rem;"><span style="background: var(--accent); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; margin-right: 0.75rem;">1</span>Select Tickets</h4>
+          {% if ticket_types %}
+          {% for tt in ticket_types %}
+          <div class="ticket-row" id="ticket-row-{{ tt.id }}">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div style="font-weight: 600; font-size: 1rem;">{{ tt.name }}</div>
+                {% if tt.description %}<div style="color: var(--text-muted); font-size: 0.85rem;">{{ tt.description }}</div>{% endif %}
+                <div style="color: var(--accent2); font-weight: 700; font-size: 1.1rem; margin-top: 0.4rem;">₦{{ tt.price }}</div>
+              </div>
+              <div class="qty-control">
+                <button type="button" class="qty-btn" onclick="changeQty('{{ tt.id }}', -1)"><i class="bi bi-dash"></i></button>
+                <input type="number" name="qty_{{ tt.id }}" id="qty_{{ tt.id }}" value="0" min="0" max="{{ tt.quantity_available }}" class="qty-input" onchange="updateTotal()">
+                <button type="button" class="qty-btn" onclick="changeQty('{{ tt.id }}', 1)"><i class="bi bi-plus"></i></button>
+              </div>
+            </div>
+            <div style="margin-top: 0.75rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div style="flex: 1; background: var(--border); height: 4px; border-radius: 2px; overflow: hidden;">
+                  <div style="width: {{ tt.availability_percentage }}%; background: {% if tt.availability_percentage > 50 %}#4ade80{% elif tt.availability_percentage > 20 %}#facc15{% else %}#f87171{% endif %}; height: 100%;"></div>
+                </div>
+                <span style="color: var(--text-muted); font-size: 0.8rem; white-space: nowrap;">{{ tt.quantity_available }} left</span>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+          {% else %}
+          <p style="color: var(--text-muted);">No tickets available.</p>
+          {% endif %}
+        </div>
+
+        <!-- Attendee Details -->
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem;">
+          <h4 style="font-family: 'Syne', sans-serif; margin-bottom: 1.5rem;"><span style="background: var(--accent); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; margin-right: 0.75rem;">2</span>Your Details</h4>
+          {% if user.is_authenticated %}
+          <div style="background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.2); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>Signed in as <strong>{{ user.get_full_name|default:user.username }}</strong> ({{ user.email }})
+          </div>
+          {% else %}
+          <div class="row g-3">
+            <div class="col-12"><label class="form-label">Full Name</label><input type="text" name="guest_name" class="form-control" placeholder="Your full name" required></div>
+            <div class="col-md-6"><label class="form-label">Email</label><input type="email" name="guest_email" class="form-control" placeholder="your@email.com" required></div>
+            <div class="col-md-6"><label class="form-label">Phone (optional)</label><input type="text" name="guest_phone" class="form-control" placeholder="+1 ..."></div>
+          </div>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100" style="padding: 1rem; font-size: 1.05rem;">
+          Proceed to Payment <i class="bi bi-lock-fill ms-2"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="col-lg-5">
+      <div style="position: sticky; top: 90px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2rem;">
+        <h4 style="font-family: 'Syne', sans-serif; margin-bottom: 1.5rem;">Order Summary</h4>
+        {% if event.poster %}
+        <img src="{{ event.poster.url }}" alt="" style="width: 100%; height: 140px; object-fit: cover; border-radius: 12px; margin-bottom: 1rem;">
+        {% endif %}
+        <div style="font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem; margin-bottom: 0.5rem;">{{ event.title }}</div>
+        <div style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.25rem;"><i class="bi bi-calendar3 me-1"></i>{{ event.start_date|date:"M d, Y · g:i A" }}</div>
+        <div style="color: var(--text-muted); font-size: 0.875rem;"><i class="bi bi-geo-alt me-1"></i>{{ event.location }}</div>
+        <div style="border-top: 1px solid var(--border); margin: 1.5rem 0; padding-top: 1.5rem;">
+          <div id="order-items" style="color: var(--text-muted); font-size: 0.9rem; min-height: 40px;">Select tickets to see summary</div>
+          <div style="border-top: 1px solid var(--border); margin-top: 1rem; padding-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 600;">Total</span>
+            <span style="font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--accent2);" id="total-display">₦0.00</span>
+          </div>
+        </div>
+        <div style="color: var(--text-muted); font-size: 0.8rem; text-align: center;"><i class="bi bi-lock-fill me-1"></i>Secured by Paystack</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ticketData = {
+  {% for tt in ticket_types %}
+  '{{ tt.id }}': { name: '{{ tt.name }}', price: {{ tt.price }} },
+  {% endfor %}
+};
+
+function changeQty(id, delta) {
+  const input = document.getElementById('qty_' + id);
+  const max = parseInt(input.max);
+  input.value = Math.max(0, Math.min(max, parseInt(input.value || 0) + delta));
+  updateTotal();
+  const row = document.getElementById('ticket-row-' + id);
+  row.classList.toggle('selected', parseInt(input.value) > 0);
+}
+
+function updateTotal() {
+  let total = 0;
+  let items = [];
+  Object.keys(ticketData).forEach(id => {
+    const qty = parseInt(document.getElementById('qty_' + id)?.value || 0);
+    if (qty > 0) {
+      const sub = qty * ticketData[id].price;
+      total += sub;
+      items.push(`<div style="display:flex;justify-content:space-between;margin-bottom:0.4rem;"><span>${qty}x ${ticketData[id].name}</span><span>₦${sub.toFixed(2)}</span></div>`);
+    }
+  });
+  document.getElementById('total-display').textContent = '₦' + total.toFixed(2);
+  document.getElementById('order-items').innerHTML = items.length ? items.join('') : '<span style="color:var(--text-muted)">Select tickets to see summary</span>';
+}
+</script>
+{% endblock %}

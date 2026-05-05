@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Delete Event - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card border-danger bg-black text-white">
+        <div class="card-header bg-danger text-white">
+          <h4 class="mb-0">Confirm Delete</h4>
+        </div>
+        <div class="card-body">
+          <p>Are you sure you want to delete the event "<strong>{{ object.title }}</strong>"?</p>
+          <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle-fill"></i> This action cannot be undone. All associated bookings and ticket types will be deleted.
+          </div>
+          <form method="post">
+            {% csrf_token %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <a href="{% url 'admin_event_list' %}" class="btn btn-outline-secondary me-md-2">Cancel</a>
+              <button type="submit" class="btn btn-danger">Confirm Delete</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

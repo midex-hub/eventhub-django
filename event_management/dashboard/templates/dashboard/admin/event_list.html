@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Events - Admin Dashboard{% endblock %}
+
+{% block content %}
+  <div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>Events Management</h2>
+      <div>
+        <a href="{% url 'create_event' %}" class="btn btn-primary me-2">
+          <i class="bi bi-plus-lg"></i> Create Event
+        </a>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary me-2">
+          <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+      </div>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="card text-white bg-black">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">All Events ({{ events.count }})</h5>
+      </div>
+      <div class="card-body p-0 bg-black text-white">
+        <div class="table-responsive bg-black text-white">
+          <table class="table table-hover mb-0 bg-black text-white">
+            <thead class="bg-black text-white">
+              <tr class="bg-black text-white">
+                <th class="bg-black text-white">Event</th>
+                <th class="bg-black text-white">Organizer</th>
+                <th class="bg-black text-white">Status</th>
+                <th class="bg-black text-white">Date</th>
+                <th class="bg-black text-white">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for event in events %}
+              <tr class="bg-black text-white">
+                <td class="bg-black text-white">
+                  <strong>{{ event.title }}</strong>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">{{ event.category.name|default:"Uncategorized" }}</div>
+                </td>
+                <td class="bg-black text-white">
+                  {{ event.organizer.get_full_name|default:event.organizer.username }}
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">{{ event.organizer.email }}</div>
+                </td>
+                <td class="bg-black text-white">
+                  <span class="status-badge {% if event.status == 'published' %}status-confirmed{% elif event.status == 'draft' %}status-pending{% else %}status-cancelled{% endif %}">
+                    {{ event.get_status_display }}
+                  </span>
+                </td>
+                <td class="bg-black text-white">{{ event.start_date|date:"M d, Y" }}</td>
+                <td class="bg-black text-white">
+                  <div class="btn-group btn-group-sm" role="group">
+                    <a href="{% url 'event_detail' event.slug %}" class="btn btn-outline-info" title="View" target="_blank">
+                      <i class="bi bi-eye"></i>
+                    </a>
+                    <a href="{% url 'admin_event_update' event.pk %}" class="btn btn-outline-warning" title="Edit">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'admin_event_delete' event.pk %}" class="btn btn-outline-danger" title="Delete">
+                      <i class="bi bi-trash"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr class="bg-black text-white">
+                <td colspan="5" class="text-center text-muted py-5">
+                  <i class="bi bi-calendar-event display-4 text-muted mb-3 d-block"></i>
+                  <h5>No events found</h5>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        
+        {% if is_paginated %}
+          <nav aria-label="Page navigation" class="mt-4 pb-4">
+            <ul class="pagination justify-content-center mb-0">
+              {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link bg-dark text-white border-secondary" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+              {% endif %}
+              <li class="page-item active"><a class="page-link bg-primary border-primary" href="#">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</a></li>
+              {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link bg-dark text-white border-secondary" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+              {% endif %}
+            </ul>
+          </nav>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger shadow-sm bg-black text-white">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">Delete Event</h4>
+                </div>
+                <div class="card-body text-center py-4 bg-black text-white">
+                    <p class="lead">Are you sure you want to delete <strong>"{{ object.title }}"</strong>?</p>
+                    <p class="text-muted">This will remove all associated bookings and tickets.</p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-center gap-3 mt-4">
+                            <a href="{% url 'admin_event_list' %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-danger">Confirm Delete</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Attendees - {{ event.title }}{% endblock %}
+{% block content %}
+<div style="padding: 3rem 0 2rem; border-bottom: 1px solid var(--border);">
+  <div class="container">
+    <a href="{% url 'organizer_dashboard' %}" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;"><i class="bi bi-arrow-left me-1"></i> Dashboard</a>
+    <h1 style="font-family: 'Syne', sans-serif; margin-top: 1rem;">Attendees</h1>
+    <p style="color: var(--text-muted);">{{ event.title }} — {{ event.start_date|date:"M d, Y" }}</p>
+  </div>
+</div>
+<div class="container" style="padding: 2rem 0 4rem;">
+  <div class="d-flex justify-content-between mb-3">
+    <p style="color: var(--text-muted);">{{ bookings.count }} confirmed attendee{{ bookings.count|pluralize }}</p>
+    <button class="btn btn-outline-light btn-sm"><i class="bi bi-download me-1"></i>Export CSV</button>
+  </div>
+  {% if bookings %}
+  <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;">
+    <table class="table table-hover mb-0">
+      <thead><tr><th>#</th><th>Attendee</th><th>Tickets</th><th>Amount</th><th>Check-in Status</th><th>Booked</th></tr></thead>
+      <tbody>
+        {% for booking in bookings %}
+        <tr>
+          <td style="color: var(--text-muted);">{{ forloop.counter }}</td>
+          <td>
+            <div style="font-weight: 600;">{% if booking.user %}{{ booking.user.get_full_name|default:booking.user.username }}{% else %}{{ booking.guest_name }}{% endif %}</div>
+            <div style="color: var(--text-muted); font-size: 0.8rem;">{% if booking.user %}{{ booking.user.email }}{% else %}{{ booking.guest_email }}{% endif %}</div>
+          </td>
+          <td>
+            {% for item in booking.items.all %}
+            <div style="font-size: 0.875rem;">{{ item.quantity }}× {{ item.ticket_type.name }}</div>
+            {% endfor %}
+          </td>
+          <td style="color: var(--accent2); font-weight: 600;">₦{{ booking.total_amount }}</td>
+          <td>
+            {% for item in booking.items.all %}
+              {% if item.qr_code %}
+                {% if item.qr_code.is_used %}
+                <span class="status-badge status-confirmed"><i class="bi bi-check-circle-fill me-1"></i>Checked In</span>
+                {% else %}
+                <span class="status-badge status-pending">Not Checked In</span>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+          </td>
+          <td style="color: var(--text-muted); font-size: 0.875rem;">{{ booking.created_at|date:"M d" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div style="text-align: center; padding: 4rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px;">
+    <i class="bi bi-people" style="font-size: 3rem; color: var(--border);"></i>
+    <p style="color: var(--text-muted); margin-top: 1rem;">No confirmed attendees yet</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

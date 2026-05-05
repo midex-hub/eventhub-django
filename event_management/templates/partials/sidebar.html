@@ -1,0 +1,33 @@
+{% load static %}
+<aside class="sidebar">
+  {% if user.role == 'admin' %}
+  <div class="sidebar-section-title">Admin</div>
+  <ul class="sidebar-menu">
+    <li><a href="{% url 'dashboard:admin' %}" class="{% if request.resolver_match.url_name == 'admin' %}active{% endif %}"><i class="fas fa-tachometer-alt"></i> Overview</a></li>
+    <li><a href="/admin/"><i class="fas fa-cog"></i> Django Admin</a></li>
+    <li><a href="#"><i class="fas fa-users"></i> Users</a></li>
+    <li><a href="#"><i class="fas fa-calendar-alt"></i> All Events</a></li>
+    <li><a href="#"><i class="fas fa-ticket-alt"></i> Bookings</a></li>
+    <li><a href="#"><i class="fas fa-credit-card"></i> Payments</a></li>
+  </ul>
+  {% elif user.role == 'organizer' %}
+  <div class="sidebar-section-title">Organizer</div>
+  <ul class="sidebar-menu">
+    <li><a href="{% url 'dashboard:organizer' %}" class="{% if request.resolver_match.url_name == 'organizer' %}active{% endif %}"><i class="fas fa-tachometer-alt"></i> Overview</a></li>
+    <li><a href="{% url 'dashboard:create_event' %}" class="{% if request.resolver_match.url_name == 'create_event' %}active{% endif %}"><i class="fas fa-plus-circle"></i> Create Event</a></li>
+    <li><a href="{% url 'dashboard:checkin' %}" class="{% if request.resolver_match.url_name == 'checkin' %}active{% endif %}"><i class="fas fa-qrcode"></i> Check-in Scanner</a></li>
+  </ul>
+  {% else %}
+  <div class="sidebar-section-title">Attendee</div>
+  <ul class="sidebar-menu">
+    <li><a href="{% url 'dashboard:attendee' %}" class="{% if request.resolver_match.url_name == 'attendee' %}active{% endif %}"><i class="fas fa-tachometer-alt"></i> My Bookings</a></li>
+    <li><a href="{% url 'events:list' %}"><i class="fas fa-search"></i> Find Events</a></li>
+  </ul>
+  {% endif %}
+
+  <div class="sidebar-section-title" style="margin-top:1rem;">Account</div>
+  <ul class="sidebar-menu">
+    <li><a href="{% url 'accounts:profile' %}"><i class="fas fa-user-circle"></i> Profile</a></li>
+    <li><a href="{% url 'accounts:logout' %}" style="color:var(--danger) !important;"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+  </ul>
+</aside>

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Categories - Admin Dashboard{% endblock %}
+{% block content %}
+  <div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>Categories</h2>
+      <a href="{% url 'admin_category_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Add Category
+      </a>
+    </div>
+    <div class="card">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Name</th>
+                <th>Slug</th>
+                <th>Icon</th>
+                <th>Color</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for category in categories %}
+              <tr>
+                <td>
+                  <strong>{{ category.name }}</strong>
+                  {% if category.description %}<br><small class="text-muted">{{ category.description }}</small>{% endif %}
+                </td>
+                <td><code>{{ category.slug }}</code></td>
+                <td><i class="bi {{ category.icon }}"></i></td>
+                <td><span class="badge" style="background-color: {{ category.color }}; color: white;">{{ category.color }}</span></td>
+                <td>
+                  <a href="{% url 'admin_category_update' category.pk %}" class="btn btn-sm btn-outline-warning">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <a href="{% url 'admin_category_delete' category.pk %}" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center text-muted py-4">
+                  No categories yet. <a href="{% url 'admin_category_create' %}">Create one</a>.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% block title %}Create Event{% endblock %}
+{% block content %}
+<div style="padding: 3rem 0 2rem; border-bottom: 1px solid var(--border);">
+  <div class="container">
+    {% if request.user.is_admin %}
+    <a href="{% url 'admin_event_list' %}" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;"><i class="bi bi-arrow-left me-1"></i> Back to Events</a>
+    {% else %}
+    <a href="{% url 'organizer_dashboard' %}" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;"><i class="bi bi-arrow-left me-1"></i> Back to Dashboard</a>
+    {% endif %}
+    <h1 style="font-family: 'Syne', sans-serif; margin-top: 1rem;">Create New Event</h1>
+  </div>
+</div>
+<div class="container" style="padding: 2rem 0 4rem;">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row g-4">
+      <!-- Left Column -->
+      <div class="col-lg-8">
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem;">
+          <h4 style="font-family: 'Syne', sans-serif; margin-bottom: 1.5rem;">Event Details</h4>
+          <div class="mb-3">
+            <label class="form-label">Event Title *</label>
+            <input type="text" name="title" class="form-control" placeholder="Give your event a compelling title" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Short Description</label>
+            <input type="text" name="short_description" class="form-control" placeholder="One-line description for cards (max 300 chars)" maxlength="300">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Full Description *</label>
+            <textarea name="description" class="form-control" rows="6" placeholder="Tell attendees what to expect, what's included, and why they should come..." required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Schedule (optional)</label>
+            <textarea name="schedule" class="form-control" rows="4" placeholder="e.g.&#10;9:00 AM - Registration&#10;10:00 AM - Opening keynote&#10;12:00 PM - Lunch break"></textarea>
+          </div>
+        </div>
+
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem;">
+          <h4 style="font-family: 'Syne', sans-serif; margin-bottom: 1.5rem;">Date, Time & Location</h4>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Start Date & Time *</label>
+              <input type="datetime-local" name="start_date" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">End Date & Time *</label>
+              <input type="datetime-local" name="end_date" class="form-control" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Venue / Location *</label>
+              <input type="text" name="location" class="form-control" placeholder="Full venue address" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Max Attendees (optional)</label>
+              <input type="number" name="max_attendees" class="form-control" placeholder="Leave blank for unlimited">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Category</label>
+              <select name="category" class="form-select">
+                <option value="">Select category</option>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ticket Types -->
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem;">
+          <div class="d-flex justify-content-between align-items-center mb-1.5rem;">
+            <h4 style="font-family: 'Syne', sans-serif;">Ticket Types</h4>
+            <button type="button" onclick="addTicketRow()" class="btn btn-outline-light btn-sm"><i class="bi bi-plus me-1"></i>Add Ticket</button>
+          </div>
+          <div id="tickets-container" style="margin-top: 1rem;">
+            <div class="ticket-row-form row g-2 mb-2 align-items-end">
+              <div class="col-4"><label class="form-label">Name</label><input type="text" name="ticket_name[]" class="form-control" placeholder="e.g. General Admission"></div>
+              <div class="col-3"><label class="form-label">Price (₦)</label><input type="number" name="ticket_price[]" class="form-control" placeholder="0.00" step="0.01" min="0"></div>
+              <div class="col-3"><label class="form-label">Quantity</label><input type="number" name="ticket_quantity[]" class="form-control" placeholder="100"></div>
+              <div class="col-2"><button type="button" onclick="this.closest('.ticket-row-form').remove()" class="btn w-100" style="background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3);">×</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="col-lg-4">
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem; position: sticky; top: 90px;">
+          <h4 style="font-family: 'Syne', sans-serif; margin-bottom: 1.5rem;">Publish Settings</h4>
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select">
+              <option value="draft">Draft (not visible)</option>
+              <option value="published">Published (live)</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label class="form-label">Event Poster</label>
+            <div id="poster-drop" style="border: 2px dashed var(--border); border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: border-color 0.2s;">
+              <i class="bi bi-cloud-upload" style="font-size: 2rem; color: var(--text-muted);"></i>
+              <div style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem;">Click or drag image</div>
+              <input type="file" name="poster" accept="image/*" id="poster-input" style="display: none;" onchange="previewPoster(this)">
+            </div>
+            <img id="poster-preview" src="" alt="" style="width: 100%; border-radius: 10px; margin-top: 1rem; display: none;">
+          </div>
+          <button type="submit" class="btn btn-primary w-100" style="padding: 0.85rem;">
+            <i class="bi bi-check-circle me-1"></i>Create Event
+          </button>
+          {% if request.user.is_admin %}
+          <a href="{% url 'admin_event_list' %}" class="btn btn-outline-light w-100 mt-2">Cancel</a>
+          {% else %}
+          <a href="{% url 'organizer_dashboard' %}" class="btn btn-outline-light w-100 mt-2">Cancel</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<script>
+document.getElementById('poster-drop').onclick = () => document.getElementById('poster-input').click();
+function previewPoster(input) {
+  if (input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => { const p = document.getElementById('poster-preview'); p.src = e.target.result; p.style.display = 'block'; };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+function addTicketRow() {
+  const c = document.getElementById('tickets-container');
+  const div = document.createElement('div');
+  div.className = 'ticket-row-form row g-2 mb-2 align-items-end';
+  div.innerHTML = `<div class="col-4"><input type="text" name="ticket_name[]" class="form-control" placeholder="Ticket name"></div><div class="col-3"><input type="number" name="ticket_price[]" class="form-control" placeholder="Price" step="0.01" min="0"></div><div class="col-3"><input type="number" name="ticket_quantity[]" class="form-control" placeholder="Qty"></div><div class="col-2"><button type="button" onclick="this.closest('.ticket-row-form').remove()" class="btn w-100" style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3)">×</button></div>`;
+  c.appendChild(div);
+}
+</script>
+{% endblock %}

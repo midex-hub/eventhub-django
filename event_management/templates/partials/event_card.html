@@ -1,0 +1,40 @@
+<div class="col-md-6 col-lg-4">
+  <div class="card-event">
+    {% if event.poster %}
+      <img src="{{ event.poster.url }}" alt="{{ event.title }}" class="card-event-img">
+    {% else %}
+      <div class="card-event-img-placeholder">
+        {% if event.category and event.category.icon %}
+          <i class="fas {{ event.category.icon }}"></i>
+        {% else %}
+          <i class="fas fa-calendar-alt"></i>
+        {% endif %}
+      </div>
+    {% endif %}
+    <div class="card-event-body">
+      {% if event.category %}
+        <span class="badge-cat">{{ event.category.name }}</span>
+      {% endif %}
+      <div class="card-event-meta mt-2">
+        <span><i class="far fa-calendar"></i> {{ event.start_date|date:"M d, Y" }}</span>
+        <span><i class="fas fa-map-marker-alt"></i> {{ event.city }}</span>
+      </div>
+      <h3 class="card-event-title">
+        <a href="{{ event.get_absolute_url }}">{{ event.title }}</a>
+      </h3>
+      <p class="card-event-desc">{{ event.short_description }}</p>
+      <div class="card-event-footer">
+        <div class="event-price">
+          {% if event.lowest_price == 0 %}
+            Free
+          {% else %}
+            ₦{{ event.lowest_price }} <small>/ ticket</small>
+          {% endif %}
+        </div>
+        <a href="{% url 'bookings:checkout' slug=event.slug %}" class="btn btn-primary btn-sm">
+          Book Now
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

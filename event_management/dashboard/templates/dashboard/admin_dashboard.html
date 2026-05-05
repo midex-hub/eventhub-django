@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="d-flex" style="min-height: calc(100vh - 72px);">
+  <!-- Sidebar -->
+  <div class="sidebar d-none d-lg-block" style="width: 240px; flex-shrink: 0;">
+    <div style="padding: 0 1rem 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem;">
+      <div style="width: 48px; height: 48px; background: #818cf8; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 0.75rem;"><i class="bi bi-shield-check text-white"></i></div>
+      <div style="font-weight: 600; font-family: 'Syne', sans-serif;">{{ request.user.get_full_name|default:request.user.username }}</div>
+      <div style="color: var(--text-muted); font-size: 0.8rem;">Administrator</div>
+    </div>
+    <a class="sidebar-link active" href="{% url 'admin_dashboard' %}"><i class="bi bi-grid"></i> Dashboard</a>
+    <a class="sidebar-link" href="{% url 'admin_withdrawal_list' %}"><i class="bi bi-wallet2"></i> Withdrawals {% if pending_withdrawals_count %}<span class="badge bg-danger ms-2">{{ pending_withdrawals_count }}</span>{% endif %}</a>
+    <a class="sidebar-link" href="{% url 'admin_user_list' %}"><i class="bi bi-people"></i> Manage Users</a>
+    <a class="sidebar-link" href="{% url 'admin_event_list' %}"><i class="bi bi-calendar-event"></i> Manage Events</a>
+    <a class="sidebar-link" href="{% url 'admin_booking_list' %}"><i class="bi bi-ticket-perforated"></i> Manage Bookings</a>
+    <a class="sidebar-link" href="{% url 'admin_category_list' %}"><i class="bi bi-tags"></i> Manage Categories</a>
+    <a class="sidebar-link" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> Logout</a>
+  </div>
+
+  <!-- Main -->
+  <div style="flex: 1; padding: 2rem;">
+    <h2 style="font-family: 'Syne', sans-serif; margin-bottom: 0.25rem;">Admin Dashboard</h2>
+    <p style="color: var(--text-muted); margin-bottom: 2rem;">Platform overview & controls</p>
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3">
+        <div class="stat-card" style="border-color: rgba(99,102,241,0.3);">
+          <div class="stat-icon" style="background: rgba(99,102,241,0.15); color: #818cf8;"><i class="bi bi-people"></i></div>
+          <div class="stat-num mt-2">{{ users.count }}</div>
+          <div class="stat-label">Total Users</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card" style="border-color: rgba(255,77,0,0.3);">
+          <div class="stat-icon" style="background: rgba(255,77,0,0.15); color: var(--accent);"><i class="bi bi-calendar-event"></i></div>
+          <div class="stat-num mt-2">{{ events.count }}</div>
+          <div class="stat-label">Total Events</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(74,222,128,0.15); color: #4ade80;"><i class="bi bi-ticket-perforated"></i></div>
+          <div class="stat-num mt-2">{{ bookings.count }}</div>
+          <div class="stat-label">Total Bookings</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card" style="border-color: rgba(255,214,10,0.3);">
+          <div class="stat-icon" style="background: rgba(255,214,10,0.15); color: var(--accent2);"><i class="bi bi-cash-stack"></i></div>
+          <div class="stat-num mt-2" style="color: var(--accent2);">₦{{ total_commission }}</div>
+          <div class="stat-label">Total Commission</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Users -->
+      <div class="col-lg-6">
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;">
+          <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+            <h5 style="font-family: 'Syne', sans-serif; margin: 0;">Recent Users</h5>
+            <a href="{% url 'admin_user_list' %}" class="btn btn-outline-light btn-sm">Manage</a>
+          </div>
+          <table class="table table-hover mb-0 bg-black text-white">
+            <thead class="bg-black text-white"><tr><th class="bg-black text-white">User</th><th class="bg-black text-white">Role</th><th class="bg-black text-white">Joined</th></tr></thead>
+            <tbody class="bg-black text-white">
+              {% for user in users|slice:":8" %}
+              <tr class="bg-black text-white">
+                <td class="bg-black text-white">
+                  <div style="font-weight: 500;" class="bg-black text-white">{{ user.get_full_name|default:user.username }}</div>
+                  <div style=" font-size: 0.8rem;" class="bg-black text-white">{{ user.email }}</div>
+                </td>
+                <td class="bg-black text-white"><span class="status-badge {% if user.role == 'admin' %}status-cancelled{% elif user.role == 'organizer' %}status-pending{% else %}status-confirmed{% endif %}">{{ user.role|capfirst }}</span></td>
+                <td style="font-size: 0.875rem;" class="bg-black text-white">{{ user.date_joined|date:"M d" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Events -->
+      <div class="col-lg-6">
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;">
+          <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+            <h5 style="font-family: 'Syne', sans-serif; margin: 0;">Recent Events</h5>
+            <a href="{% url 'admin_event_list' %}" class="btn btn-outline-light btn-sm">Manage</a>
+          </div>
+          <table class="table table-hover mb-0 bg-black text-white">
+            <thead class="bg-black text-white"><tr><th class="bg-black text-white">Event</th><th class="bg-black text-white">Status</th><th class="bg-black text-white">Actions</th></tr></thead>
+            <tbody class="bg-black text-white">
+              {% for event in events|slice:":8" %}
+              <tr class="bg-black text-white">
+                <td class="bg-black text-white">
+                  <div style="font-weight: 500;" class="bg-black text-white">{{ event.title|truncatewords:4 }}</div>
+                  <div style="color: var(--text-muted); font-size: 0.8rem;" class="bg-black text-white">{{ event.organizer.username }}</div>
+                </td>
+                <td class="bg-black text-white"><span class="status-badge {% if event.status == 'published' %}status-confirmed{% elif event.status == 'draft' %}status-pending{% else %}status-cancelled{% endif %}">{{ event.get_status_display }}</span></td>
+                <td class="bg-black text-white">
+                   <div class="btn-group btn-group-sm">
+                      <a href="{% url 'admin_event_update' event.pk %}" class="btn btn-outline-warning" title="Edit"><i class="bi bi-pencil"></i></a>
+                   </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Withdrawal Requests Table -->
+    {% if withdrawal_requests %}
+    <div class="mt-4" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;">
+      <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+        <h5 style="font-family: 'Syne', sans-serif; margin: 0;">Recent Withdrawal Requests</h5>
+        <a href="{% url 'admin_withdrawal_list' %}" class="btn btn-outline-light btn-sm">All Requests</a>
+      </div>
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr><th>Organizer</th><th>Amount</th><th>Status</th><th>Date</th></tr>
+        </thead>
+        <tbody>
+          {% for w in withdrawal_requests %}
+          <tr>
+            <td>{{ w.user.username }}</td>
+            <td>₦{{ w.amount_requested }}</td>
+            <td>
+              <span class="status-badge 
+                {% if w.status == 'completed' %}status-confirmed
+                {% elif w.status == 'rejected' %}status-cancelled
+                {% else %}status-pending{% endif %}">
+                {{ w.get_status_display }}
+              </span>
+            </td>
+            <td style="color: var(--text-muted);">{{ w.created_at|date:"M d, Y" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

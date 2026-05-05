@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ticket — {{ booking.event.title }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0a0f;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background-image: radial-gradient(ellipse at 50% 0%, rgba(74,222,128,0.10) 0%, transparent 60%);
+    }
+
+    .card {
+      background: #111118;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 420px;
+      overflow: hidden;
+      box-shadow: 0 32px 64px rgba(0,0,0,0.5);
+    }
+
+    /* Status header bar */
+    .card-header {
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .card-header.confirmed  { background: rgba(74,222,128,0.10); }
+    .card-header.pending    { background: rgba(250,204,21,0.10); }
+    .card-header.cancelled  { background: rgba(248,113,113,0.10); }
+
+    .badge {
+      padding: 0.3rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+    .badge.confirmed { background: rgba(74,222,128,0.15); color: #4ade4c; border: 1px solid rgba(74,222,128,0.35); }
+    .badge.pending   { background: rgba(250,204,21,0.15);  color: #facc15; border: 1px solid rgba(250,204,21,0.35); }
+    .badge.cancelled { background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.35); }
+
+    .ref {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* Checkin strip */
+    .checkin-strip {
+      padding: 0.65rem 1.5rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .checkin-strip.used     { background: rgba(248,113,113,0.12); color: #0be491; border-bottom: 1px solid rgba(248,113,113,0.2); }
+    .checkin-strip.not-used { background: rgba(74,222,128,0.08);  color: #4ade80; border-bottom: 1px solid rgba(74,222,128,0.15); }
+
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot.red   { background: #71f895; box-shadow: 0 0 6px #71f895; }
+    .dot.green { background: #4ade80; box-shadow: 0 0 6px #4ade80; animation: blink 2s infinite; }
+
+    @keyframes blink {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.35; }
+    }
+
+    /* Body */
+    .card-body { padding: 1.5rem; }
+
+    .event-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 1.1rem;
+      line-height: 1.3;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .info-item label {
+      display: block;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #64748b;
+      margin-bottom: 0.25rem;
+    }
+    .info-item span {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #cbd5e1;
+      line-height: 1.4;
+    }
+
+    /* Divider with dots (ticket tear) */
+    .divider {
+      position: relative;
+      border-top: 1.5px dashed rgba(255,255,255,0.1);
+      margin: 1.25rem -1.5rem;
+    }
+    .divider::before,
+    .divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px; height: 24px;
+      background: #0a0a0f;
+      border-radius: 50%;
+    }
+    .divider::before { left: -12px; }
+    .divider::after  { right: -12px; }
+
+    /* Ticket type row */
+    .ticket-row {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px;
+      padding: 1rem 1.1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+    .ticket-row .name  { font-weight: 600; font-size: 0.95rem; }
+    .ticket-row .qty   { color: #64748b; font-size: 0.8rem; margin-top: 0.2rem; }
+    .ticket-row .price { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 800; color: #4ade80; }
+
+    /* Attendee */
+    .attendee-box {
+      background: rgba(74,222,128,0.06);
+      border: 1px solid rgba(74,222,128,0.15);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+    .attendee-box .att-label { color: #64748b; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.2rem; }
+    .attendee-box .att-name  { font-weight: 600; }
+
+    /* Footer note */
+    .note {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #475569;
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* Used overlay */
+    .used-banner {
+      background: rgba(248,113,113,0.1);
+      border: 1px solid rgba(248,113,113,0.25);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #f87171;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+
+    <div class="card-header {{ booking.status }}">
+      <span class="ref">{{ booking.reference }}</span>
+      <span class="badge {{ booking.status }}">{{ booking.get_status_display }}</span>
+    </div>
+
+    {% if qr.is_used %}
+    <div class="checkin-strip used">
+      <span class="dot red"></span>
+      Checked in{% if qr.used_at %} · {{ qr.used_at|date:"M d, Y · g:i A" }}{% endif %}
+    </div>
+    {% else %}
+    <div class="checkin-strip not-used">
+      <span class="dot green"></span>
+      Valid — not yet checked in
+    </div>
+    {% endif %}
+
+    <div class="card-body">
+
+      {% if qr.is_used %}
+      <div class="used-banner">
+        ⚠️ This ticket has already been used for entry.
+      </div>
+      {% endif %}
+
+      <div class="event-title">{{ booking.event.title }}</div>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Date</label>
+          <span>{{ booking.event.start_date|date:"M d, Y" }}</span>
+        </div>
+        <div class="info-item">
+          <label>Time</label>
+          <span>{{ booking.event.start_date|date:"g:i A" }}</span>
+        </div>
+        <div class="info-item">
+          <label>Location</label>
+          <span>{{ booking.event.location }}</span>
+        </div>
+        <div class="info-item">
+          <label>Booked by</label>
+          <span>
+            {% if booking.user %}{{ booking.user.get_full_name|default:booking.user.email }}
+            {% elif booking.guest_name %}{{ booking.guest_name }}
+            {% else %}—{% endif %}
+          </span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Ticket type -->
+      <div class="ticket-row">
+        <div>
+          <div class="name">{{ item.ticket_type.name }}</div>
+          <div class="qty">Qty: {{ item.quantity }}</div>
+        </div>
+        <div class="price">₦{{ item.subtotal }}</div>
+      </div>
+
+      <!-- Attendee info if set -->
+      {% if item.attendee_name %}
+      <div class="attendee-box">
+        <div class="att-label">Attendee</div>
+        <div class="att-name">{{ item.attendee_name }}</div>
+        {% if item.attendee_email %}<div style="color:#1be971;font-size:0.82rem;">{{ item.attendee_email }}</div>{% endif %}
+      </div>
+      {% endif %}
+
+      <div class="note">
+        <strong style="color:#555b57;">EventHub</strong> &nbsp;·&nbsp; Ticket code: {{ qr.code }}<br>
+        This page is your digital ticket. Please show it at the entrance.
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,129 @@
+{% extends "base/base.html" %}
+{% block title %}Organizer Dashboard – EventSphere{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  {% include "partials/sidebar.html" %}
+
+  <div class="dashboard-content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h1 style="font-size:1.5rem;font-weight:800;margin-bottom:0.2rem;">Organizer Dashboard</h1>
+        <p style="color:var(--text-muted);font-size:0.88rem;margin:0;">Manage your events and track performance</p>
+      </div>
+      <a href="{% url 'dashboard:create_event' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i> New Event
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+          <div class="stat-value">{{ total_events }}</div>
+          <div class="stat-label">Total Events</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(0,214,143,0.15);color:var(--success);"><i class="fas fa-globe"></i></div>
+          <div class="stat-value">{{ published_events }}</div>
+          <div class="stat-label">Published</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(255,170,0,0.15);color:var(--warning);"><i class="fas fa-clock"></i></div>
+          <div class="stat-value">{{ upcoming_events }}</div>
+          <div class="stat-label">Upcoming</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(0,214,143,0.15);color:var(--success);"><i class="bi bi-currency-naira"></i></div>
+          <div class="stat-value">₦{{ total_revenue|floatformat:0 }}</div>
+          <div class="stat-label">Revenue</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Events Table -->
+    <div class="table-wrapper">
+      <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-weight:700;font-size:0.95rem;">My Events</span>
+        <a href="{% url 'dashboard:create_event' %}" class="btn btn-primary btn-sm">
+          <i class="fas fa-plus me-1"></i> Add Event
+        </a>
+      </div>
+      {% if events %}
+      <div style="overflow-x:auto;">
+        <table class="table-dark-custom">
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Tickets Sold</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for event in events %}
+            <tr>
+              <td>
+                <div style="font-weight:600;font-size:0.9rem;">{{ event.title }}</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);">{{ event.venue_name }}, {{ event.city }}</div>
+              </td>
+              <td style="color:var(--text-muted);font-size:0.85rem;">{{ event.start_date|date:"M d, Y" }}</td>
+              <td>
+                {% if event.category %}
+                <span class="badge-cat">{{ event.category.name }}</span>
+                {% else %}–{% endif %}
+              </td>
+              <td style="font-size:0.85rem;">
+                <span style="font-weight:700;">{{ event.tickets_sold }}</span>
+                <span style="color:var(--text-muted);"> / {{ event.total_tickets }}</span>
+              </td>
+              <td>
+                <span class="badge-status {% if event.status == 'published' %}badge-confirmed{% elif event.status == 'draft' %}badge-pending{% else %}badge-cancelled{% endif %}">
+                  {{ event.status|title }}
+                </span>
+              </td>
+              <td>
+                <div class="d-flex gap-1 flex-wrap">
+                  <a href="{{ event.get_absolute_url }}" class="btn btn-sm btn-outline-primary" title="View">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                  <a href="{% url 'dashboard:edit_event' event.id %}" class="btn btn-sm btn-outline-primary" title="Edit">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <a href="{% url 'dashboard:attendee_list' event.id %}" class="btn btn-sm btn-outline-primary" title="Attendees">
+                    <i class="fas fa-users"></i>
+                  </a>
+                  <form method="POST" action="{% url 'dashboard:delete_event' event.id %}" onsubmit="return confirm('Delete this event?')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm" style="background:transparent;border:1px solid var(--danger);color:var(--danger);">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div style="text-align:center;padding:4rem 2rem;">
+        <div style="font-size:3rem;margin-bottom:1rem;">📅</div>
+        <h3 style="font-size:1.1rem;">No events yet</h3>
+        <p style="color:var(--text-muted);font-size:0.88rem;">Create your first event to get started.</p>
+        <a href="{% url 'dashboard:create_event' %}" class="btn btn-primary mt-2">Create Event</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

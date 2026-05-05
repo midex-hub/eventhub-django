@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Bookings - Admin Dashboard{% endblock %}
+
+{% block content %}
+  <div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>Bookings Management</h2>
+      <div>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary me-2">
+          <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+      </div>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show bg-black text-white" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="card bg-black text-white">
+      <div class="card-header d-flex justify-content-between align-items-center bg-black text-white">
+        <h5 class="mb-0 bg-black text-white">All Bookings ({{ bookings|length }})</h5>
+      </div>
+      <div class="card-body p-0 bg-black text-white">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0 bg-black text-white">
+            <thead class="table-light bg-black text-white">
+              <tr class="bg-black text-white">
+                <th class="bg-black text-white">ID / Ref</th>
+                <th class="bg-black text-white">User</th>
+                <th class="bg-black text-white">Event</th>
+                <th class="bg-black text-white">Status</th>
+                <th class="bg-black text-white">Amount</th>
+                <th class="bg-black text-white">Date Created</th>
+                <th class="bg-black text-white">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for booking in bookings %}
+              <tr class="bg-black text-white">
+                <td class="bg-black text-white"><strong>#{{ booking.id }}{% if booking.reference %} ({{ booking.reference }}){% endif %}</strong></td>
+                <td class="bg-black text-white">
+                  {% if booking.user %}
+                    {{ booking.user.get_full_name|default:booking.user.username }}
+                  {% else %}
+                    {{ booking.guest_name|default:"Guest" }}
+                  {% endif %}
+                  {% if booking.user and booking.user.email %}
+                    <br><small class="text-white">{{ booking.user.email }}</small>
+                  {% elif booking.guest_email %}
+                    <br><small class="text-white">{{ booking.guest_email }}</small>
+                  {% endif %}
+                </td>
+                <td class="bg-black text-white">
+                  {{ booking.event.title }}
+                  <br><small class="text-white">{{ booking.event.start_date|date:"M d, Y" }}</small>
+                </td>
+                <td class="bg-black text-white">
+                  {% if booking.status == 'confirmed' %}
+                    <span class="badge bg-success">Confirmed</span>
+                  {% elif booking.status == 'pending' %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                  {% elif booking.status == 'cancelled' %}
+                    <span class="badge bg-danger">Cancelled</span>
+                  {% else %}
+                    <span class="badge bg-secondary">{{ booking.status|title }}</span>
+                  {% endif %}
+                </td>
+                <td class="bg-black text-white"><strong>₦{{ booking.total_amount }}</strong></td>
+                <td class="bg-black text-white">{{ booking.created_at|date:"M d, Y H:i" }}</td>
+                <td class="bg-black text-white">
+                  <div class="btn-group btn-group-sm" role="group">
+                    <a href="{% url 'admin_booking_update' booking.pk %}" class="btn btn-outline-warning" title="Edit">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'admin_booking_delete' booking.pk %}" class="btn btn-outline-danger" title="Delete">
+                      <i class="bi bi-trash"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="7" class="text-center text-muted py-5">
+                  <i class="bi bi-calendar-check display-4 text-muted mb-3 d-block"></i>
+                  <h5>No bookings found</h5>
+                  <p class="mb-4">No bookings in the system yet.</p>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        
+        {% if is_paginated %}
+          {% include 'dashboard/pagination.html' with page_obj=page_obj %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

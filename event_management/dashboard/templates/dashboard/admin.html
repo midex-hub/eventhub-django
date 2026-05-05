@@ -1,0 +1,169 @@
+{% extends "base/base.html" %}
+{% block title %}Admin Dashboard – EventSphere{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  {% include "partials/sidebar.html" %}
+
+  <div class="dashboard-content">
+    <div class="mb-4">
+      <h1 style="font-size:1.5rem;font-weight:800;margin-bottom:0.2rem;">Admin Overview</h1>
+      <p style="color:var(--text-muted);font-size:0.88rem;margin:0;">Full platform management dashboard</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fas fa-users"></i></div>
+          <div class="stat-value">{{ total_users }}</div>
+          <div class="stat-label">Total Users</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(224,64,251,0.15);color:var(--accent-2);"><i class="fas fa-calendar-alt"></i></div>
+          <div class="stat-value">{{ total_events }}</div>
+          <div class="stat-label">Total Events</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(255,170,0,0.15);color:var(--warning);"><i class="fas fa-ticket-alt"></i></div>
+          <div class="stat-value">{{ total_bookings }}</div>
+          <div class="stat-label">Total Bookings</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(0,214,143,0.15);color:var(--success);"><i class="bi bi-currency-naira"></i></div>
+          <div class="stat-value">₦{{ total_revenue|floatformat:0 }}</div>
+          <div class="stat-label">Revenue</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Users by Role -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="table-wrapper">
+          <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-weight:700;font-size:0.9rem;">Users by Role</span>
+            <a href="{% url 'admin_user_list' %}" class="btn btn-outline-primary btn-sm" style="font-size:0.75rem;padding:0.25rem 0.5rem;">Manage Users</a>
+          </div>
+          <div style="padding:1rem 1.5rem;">
+            {% for role in users_by_role %}
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid var(--border);">
+              <div style="display:flex;align-items:center;gap:0.75rem;">
+                {% if role.role == 'admin' %}<i class="fas fa-crown" style="color:var(--warning);"></i>
+                {% elif role.role == 'organizer' %}<i class="fas fa-briefcase" style="color:var(--accent-2);"></i>
+                {% else %}<i class="fas fa-user" style="color:var(--accent);"></i>{% endif %}
+                <span style="text-transform:capitalize;font-size:0.9rem;">{{ role.role }}</span>
+              </div>
+              <span style="font-weight:700;font-family:'Syne',sans-serif;">{{ role.count }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-8">
+        <!-- Recent Bookings -->
+        <div class="table-wrapper">
+          <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-weight:700;font-size:0.9rem;">Recent Bookings</span>
+            <a href="{% url 'admin_booking_list' %}" class="btn btn-outline-primary btn-sm" style="font-size:0.75rem;padding:0.25rem 0.5rem;">View All</a>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="table-dark-custom">
+              <thead>
+                <tr>
+                  <th>Booking</th>
+                  <th>Event</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for booking in recent_bookings %}
+                <tr>
+                  <td>
+                    <div style="font-size:0.82rem;font-weight:600;">{{ booking.buyer_name }}</div>
+                    <div style="font-size:0.72rem;color:var(--text-muted);">#{{ booking.id|stringformat:"s"|slice:":8"|upper }}</div>
+                  </td>
+                  <td style="font-size:0.82rem;color:var(--text-muted);">
+                    {% for item in booking.items.all %}{{ item.ticket_type.event.title|truncatechars:25 }}{% endfor %}
+                  </td>
+                  <td style="font-weight:700;color:var(--accent);font-size:0.88rem;">₦{{ booking.total_amount }}</td>
+                  <td><span class="badge-status badge-{{ booking.status }}">{{ booking.status|title }}</span></td>
+                  <td style="font-size:0.78rem;color:var(--text-muted);">{{ booking.created_at|date:"M d, Y" }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Categories Management -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <div class="table-wrapper">
+          <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-weight:700;font-size:0.9rem;">Categories</span>
+            <a href="{% url 'admin_category_list' %}" class="btn btn-outline-primary btn-sm">
+              <i class="bi bi-list-ul me-1"></i> Manage Categories
+            </a>
+          </div>
+          <div style="padding:1rem 1.5rem;">
+            <p style="color:var(--text-muted);font-size:0.85rem;margin:0;">{{ total_categories|default:"0" }} categories</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- All Events -->
+    <div class="table-wrapper">
+      <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-weight:700;font-size:0.9rem;">All Events</span>
+        <a href="{% url 'admin_event_list' %}" class="btn btn-outline-primary btn-sm">
+          <i class="fas fa-calendar-alt me-1"></i> Manage Events
+        </a>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="table-dark-custom">
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Organizer</th>
+              <th>Category</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for event in all_events %}
+            <tr>
+              <td>
+                <div style="font-weight:600;font-size:0.88rem;">{{ event.title }}</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);">{{ event.city }}, {{ event.country }}</div>
+              </td>
+              <td style="font-size:0.85rem;color:var(--text-muted);">{{ event.organizer.get_full_name|default:event.organizer.username }}</td>
+              <td>{% if event.category %}<span class="badge-cat">{{ event.category.name }}</span>{% else %}–{% endif %}</td>
+              <td style="font-size:0.82rem;color:var(--text-muted);">{{ event.start_date|date:"M d, Y" }}</td>
+              <td>
+                <span class="badge-status {% if event.status == 'published' %}badge-confirmed{% elif event.status == 'draft' %}badge-pending{% else %}badge-cancelled{% endif %}">
+                  {{ event.status|title }}
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}My Dashboard{% endblock %}
+{% block content %}
+<div class="d-flex" style="min-height: calc(100vh - 72px);">
+  <!-- Sidebar -->
+  <div class="sidebar d-none d-lg-block" style="width: 240px; flex-shrink: 0;">
+    <div style="padding: 0 1rem 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem;">
+      <div style="width: 48px; height: 48px; background: var(--accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 1.25rem; font-weight: 800; margin-bottom: 0.75rem;">{{ request.user.first_name.0|default:request.user.username.0|upper }}</div>
+      <div style="font-weight: 600; font-family: 'Syne', sans-serif;">{{ request.user.get_full_name|default:request.user.username }}</div>
+      <div style="color: var(--text-muted); font-size: 0.8rem;">Attendee</div>
+    </div>
+    <a class="sidebar-link active" href="{% url 'attendee_dashboard' %}"><i class="bi bi-grid"></i> Dashboard</a>
+    <a class="sidebar-link" href="{% url 'event_list' %}"><i class="bi bi-calendar-event"></i> Browse Events</a>
+    <a class="sidebar-link" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> Logout</a>
+  </div>
+
+  <!-- Main -->
+  <div style="flex: 1; padding: 2rem;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 style="font-family: 'Syne', sans-serif; margin: 0;">My Bookings</h2>
+        <p style="color: var(--text-muted); margin: 0;">All your event tickets in one place</p>
+      </div>
+      <a href="{% url 'event_list' %}" class="btn btn-primary">Find Events</a>
+    </div>
+
+    {% if bookings %}
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-num">{{ bookings.count }}</div>
+          <div class="stat-label">Total Bookings</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card">
+          <div class="stat-num" style="color: #4ade80;">{{ bookings|length }}</div>
+          <div class="stat-label">Confirmed</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr><th>Event</th><th>Date</th><th>Tickets</th><th>Amount</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for booking in bookings %}
+          <tr>
+            <td>
+              <div style="font-weight: 600;">{{ booking.event.title|truncatewords:5 }}</div>
+              <div style="color: var(--text-muted); font-size: 0.8rem;">{{ booking.reference }}</div>
+            </td>
+            <td style="color: var(--text-muted);">{{ booking.event.start_date|date:"M d, Y" }}</td>
+            <td>{{ booking.items.count }} ticket{{ booking.items.count|pluralize }}</td>
+            <td style="color: var(--accent2); font-weight: 600;">₦{{ booking.total_amount }}</td>
+            <td><span class="status-badge status-{{ booking.status }}">{{ booking.get_status_display }}</span></td>
+            <td>
+              {% for item in booking.items.all %}{% if item.qr_code and item.qr_code.image %}
+              <a href="{{ item.qr_code.image.url }}" target="_blank" class="btn btn-outline-light btn-sm me-1" title="QR"><i class="bi bi-qr-code"></i></a>
+              {% endif %}{% endfor %}
+              {% if booking.status == 'confirmed' %}
+              <a href="{% url 'cancel_booking' booking.id %}" class="btn btn-sm" style="background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.3);" onclick="return confirm('Cancel this booking?')">Cancel</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 4rem; text-align: center;">
+      <i class="bi bi-ticket-perforated" style="font-size: 3.5rem; color: var(--border);"></i>
+      <h3 style="font-family: 'Syne', sans-serif; margin-top: 1rem;">No bookings yet</h3>
+      <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Discover amazing events and book your first ticket!</p>
+      <a href="{% url 'event_list' %}" class="btn btn-primary">Browse Events</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
