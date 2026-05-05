@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% block title %}Organizer Dashboard{% endblock %}
 {% block content %}
-<div class="d-flex" style="min-height: calc(100vh - 72px);">
+<div class="d-flex flex-column flex-lg-row" style="min-height: calc(100vh - 72px);">
   <!-- Sidebar -->
-  <div class="sidebar d-none d-lg-block" style="width: 240px; flex-shrink: 0;">
+  <div class="sidebar" style="width: 240px; flex-shrink: 0;">
     <div style="padding: 0 1rem 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem;">
       <div style="width: 48px; height: 48px; background: var(--accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 1.25rem; font-weight: 800; margin-bottom: 0.75rem;">{{ request.user.first_name.0|default:request.user.username.0|upper }}</div>
       <div style="font-weight: 600; font-family: 'Syne', sans-serif;">{{ request.user.get_full_name|default:request.user.username }}</div>
@@ -69,18 +69,18 @@
 
     <!-- Events Table -->
     {% if events %}
-    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;">
+    <div class="table-responsive-cards" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; padding: 1px;">
       <div style="padding: 1.5rem 1.5rem 0; display: flex; justify-content: space-between; align-items: center;">
         <h5 style="font-family: 'Syne', sans-serif; margin: 0;">My Events</h5>
       </div>
       <table class="table table-hover mt-3 mb-0">
-        <thead>
+        <thead class="d-none d-md-table-header-group">
           <tr><th>Event</th><th>Date</th><th>Status</th><th>Actions</th></tr>
         </thead>
         <tbody>
           {% for event in events %}
           <tr>
-            <td>
+            <td data-label="Event">
               <div class="d-flex align-items-center gap-3">
                 {% if event.poster %}
                 <img src="{{ event.poster.url }}" style="width: 48px; height: 40px; object-fit: cover; border-radius: 6px;">
@@ -93,9 +93,9 @@
                 </div>
               </div>
             </td>
-            <td style="color: var(--text-muted);">{{ event.start_date|date:"M d, Y" }}</td>
-            <td><span class="status-badge {% if event.status == 'published' %}status-confirmed{% elif event.status == 'draft' %}status-pending{% else %}status-cancelled{% endif %}">{{ event.get_status_display }}</span></td>
-            <td>
+            <td data-label="Date" style="color: var(--text-muted);">{{ event.start_date|date:"M d, Y" }}</td>
+            <td data-label="Status"><span class="status-badge {% if event.status == 'published' %}status-confirmed{% elif event.status == 'draft' %}status-pending{% else %}status-cancelled{% endif %}">{{ event.get_status_display }}</span></td>
+            <td data-label="Actions">
               <div class="d-flex gap-2">
                 <a href="{% url 'edit_event' event.id %}" class="btn btn-outline-light btn-sm"><i class="bi bi-pencil"></i></a>
                 <a href="{% url 'event_attendees' event.id %}" class="btn btn-outline-light btn-sm"><i class="bi bi-people"></i></a>

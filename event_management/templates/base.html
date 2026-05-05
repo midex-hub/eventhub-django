@@ -122,6 +122,18 @@
     .qty-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
     .qty-btn:hover { background: var(--accent); border-color: var(--accent); }
     .qty-input { width: 50px; text-align: center; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 0.25rem; }
+
+    /* RESPONSIVE TABLES (Card View on Mobile) */
+    @media (max-width: 768px) {
+      .table-responsive-cards table, .table-responsive-cards thead, .table-responsive-cards tbody, .table-responsive-cards th, .table-responsive-cards td, .table-responsive-cards tr { display: block; }
+      .table-responsive-cards thead tr { position: absolute; top: -9999px; left: -9999px; }
+      .table-responsive-cards tr { margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 12px; background: var(--card-bg); padding: 0.5rem; }
+      .table-responsive-cards td { border: none; position: relative; padding: 0.5rem 0 0.5rem 45%; text-align: left; border-bottom: 1px solid var(--border); min-height: 40px; display: flex; align-items: center; }
+      .table-responsive-cards td:last-child { border-bottom: none; }
+      .table-responsive-cards td:before { content: attr(data-label); position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 40%; white-space: nowrap; font-weight: 600; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; }
+      .table-responsive-cards td > div { width: 100%; }
+      .sidebar { width: 100% !important; border-right: none; border-bottom: 1px solid var(--border); min-height: auto; padding: 1rem 0; margin-bottom: 1rem; }
+    }
   </style>
   {% block extra_css %}{% endblock %}
 </head>

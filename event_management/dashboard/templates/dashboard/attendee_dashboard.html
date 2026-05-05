@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% block title %}My Dashboard{% endblock %}
 {% block content %}
-<div class="d-flex" style="min-height: calc(100vh - 72px);">
+<div class="d-flex flex-column flex-lg-row" style="min-height: calc(100vh - 72px);">
   <!-- Sidebar -->
-  <div class="sidebar d-none d-lg-block" style="width: 240px; flex-shrink: 0;">
+  <div class="sidebar" style="width: 240px; flex-shrink: 0;">
     <div style="padding: 0 1rem 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem;">
       <div style="width: 48px; height: 48px; background: var(--accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 1.25rem; font-weight: 800; margin-bottom: 0.75rem;">{{ request.user.first_name.0|default:request.user.username.0|upper }}</div>
       <div style="font-weight: 600; font-family: 'Syne', sans-serif;">{{ request.user.get_full_name|default:request.user.username }}</div>
@@ -40,29 +40,33 @@
       </div>
     </div>
 
-    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;">
+    <div class="table-responsive-cards" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; padding: 1px;">
       <table class="table table-hover mb-0">
-        <thead>
+        <thead class="d-none d-md-table-header-group">
           <tr><th>Event</th><th>Date</th><th>Tickets</th><th>Amount</th><th>Status</th><th>Actions</th></tr>
         </thead>
         <tbody>
           {% for booking in bookings %}
           <tr>
-            <td>
-              <div style="font-weight: 600;">{{ booking.event.title|truncatewords:5 }}</div>
-              <div style="color: var(--text-muted); font-size: 0.8rem;">{{ booking.reference }}</div>
+            <td data-label="Event">
+              <div>
+                <div style="font-weight: 600;">{{ booking.event.title|truncatewords:5 }}</div>
+                <div style="color: var(--text-muted); font-size: 0.8rem;">{{ booking.reference }}</div>
+              </div>
             </td>
-            <td style="color: var(--text-muted);">{{ booking.event.start_date|date:"M d, Y" }}</td>
-            <td>{{ booking.items.count }} ticket{{ booking.items.count|pluralize }}</td>
-            <td style="color: var(--accent2); font-weight: 600;">₦{{ booking.total_amount }}</td>
-            <td><span class="status-badge status-{{ booking.status }}">{{ booking.get_status_display }}</span></td>
-            <td>
-              {% for item in booking.items.all %}{% if item.qr_code and item.qr_code.image %}
-              <a href="{{ item.qr_code.image.url }}" target="_blank" class="btn btn-outline-light btn-sm me-1" title="QR"><i class="bi bi-qr-code"></i></a>
-              {% endif %}{% endfor %}
-              {% if booking.status == 'confirmed' %}
-              <a href="{% url 'cancel_booking' booking.id %}" class="btn btn-sm" style="background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.3);" onclick="return confirm('Cancel this booking?')">Cancel</a>
-              {% endif %}
+            <td data-label="Date" style="color: var(--text-muted);">{{ booking.event.start_date|date:"M d, Y" }}</td>
+            <td data-label="Tickets">{{ booking.items.count }} ticket{{ booking.items.count|pluralize }}</td>
+            <td data-label="Amount" style="color: var(--accent2); font-weight: 600;">₦{{ booking.total_amount }}</td>
+            <td data-label="Status"><span class="status-badge status-{{ booking.status }}">{{ booking.get_status_display }}</span></td>
+            <td data-label="Actions">
+              <div>
+                {% for item in booking.items.all %}{% if item.qr_code and item.qr_code.image %}
+                <a href="{{ item.qr_code.image.url }}" target="_blank" class="btn btn-outline-light btn-sm me-1" title="QR"><i class="bi bi-qr-code"></i></a>
+                {% endif %}{% endfor %}
+                {% if booking.status == 'confirmed' %}
+                <a href="{% url 'cancel_booking' booking.id %}" class="btn btn-sm mt-1 mt-md-0" style="background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.3);" onclick="return confirm('Cancel this booking?')">Cancel</a>
+                {% endif %}
+              </div>
             </td>
           </tr>
           {% endfor %}
