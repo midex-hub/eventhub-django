@@ -1,10 +1,11 @@
 Django>=4.0
-mysqlclient
+mysqlclient         # Keep for local dev if you want, but PostgreSQL is recommended
+psycopg2-binary     # Required for PostgreSQL
+dj-database-url     # Helps handle DATABASE_URL on Render
 python-dotenv
 django-crispy-forms
 crispy-bootstrap5
 whitenoise
-psycopg2-binary  # Common if moving to PostgreSQL later
-gunicorn         # For production deployment
-django-storages  # Seen in settings.py for AWS S3
-boto3            # For S3 support
+gunicorn
+django-storages
+boto3
