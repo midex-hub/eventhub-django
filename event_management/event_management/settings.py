@@ -1,12 +1,10 @@
-"""
-Django settings for event_management project.
-"""
+
 import os
 import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
+
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -83,7 +81,6 @@ DATABASES = {
     )
 }
 
-# Add fallback for local SQLite if needed (optional)
 if not DATABASES['default']:
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -100,7 +97,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Africa/Lagos'  # Change to your desired timezone
+TIME_ZONE = 'Africa/Lagos'
 USE_I18N = True
 USE_TZ = True
 

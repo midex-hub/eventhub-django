@@ -31,7 +31,7 @@ def send_verification_email(user: CustomUser, request):
     send_mail(
         subject,
         plain_message,
-        'noreply@eventhub.com',  # From settings
+        'noreply@eventhub.com', 
         [user.email],
         html_message=html_message,
     )
