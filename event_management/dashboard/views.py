@@ -50,8 +50,11 @@ def create_event(request):
             schedule=request.POST.get('schedule', ''),
         )
         if 'poster' in request.FILES:
-            event.poster = request.FILES['poster']
-            event.save()
+            try:
+                event.poster = request.FILES['poster']
+                event.save()
+            except Exception as e:
+                messages.error(request, f'Could not upload poster image. Please try again or use a different file.')
         # Create ticket types
         names = request.POST.getlist('ticket_name[]')
         prices = request.POST.getlist('ticket_price[]')
@@ -80,7 +83,10 @@ def edit_event(request, event_id):
         event.category_id = request.POST.get('category') or None
         event.status = request.POST.get('status', 'draft')
         if 'poster' in request.FILES:
-            event.poster = request.FILES['poster']
+            try:
+                event.poster = request.FILES['poster']
+            except Exception as e:
+                messages.error(request, f'Could not upload poster image. Please try again or use a different file.')
         event.save()
         messages.success(request, 'Event updated successfully!')
         return redirect('organizer_dashboard')
@@ -113,6 +119,12 @@ def checkin_view(request):
         except QRCode.DoesNotExist:
             return render(request, 'dashboard/checkin.html', {'events': events, 'result': 'invalid'})
     return render(request, 'dashboard/checkin.html', {'events': events})
+
+
+def scanner_view(request):
+    """Universal scanner page for all users."""
+    return render(request, 'dashboard/scanner.html')
+
 
 
 @role_required('admin')

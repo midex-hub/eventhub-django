@@ -8,7 +8,9 @@ urlpatterns = [
     path('organizer/events/<int:event_id>/edit/', views.edit_event, name='edit_event'),
     path('organizer/events/<int:event_id>/attendees/', views.event_attendees, name='event_attendees'),
     path('organizer/checkin/', views.checkin_view, name='checkin'),
+    path('scan/', views.scanner_view, name='scan_ticket'),
     path('admin/', views.admin_dashboard, name='admin_dashboard'),
+
     # Admin CRUD
     path('admin/categories/', views.CategoryListView.as_view(), name='admin_category_list'),
     path('admin/categories/create/', views.CategoryCreateView.as_view(), name='admin_category_create'),

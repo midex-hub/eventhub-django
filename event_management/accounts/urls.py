@@ -12,7 +12,11 @@ urlpatterns = [
     path('email-verification-sent/', TemplateView.as_view(template_name='accounts/email_verification_sent.html'), name='email_verification_sent'),
     path('profile/', views.profile_view, name='profile'),
     path('dashboard/', views.dashboard_redirect, name='dashboard_redirect'),
-    path('password-reset/', auth_views.PasswordResetView.as_view(template_name='accounts/password_reset.html'), name='password_reset'),
+    path('password-reset/', auth_views.PasswordResetView.as_view(
+        template_name='accounts/password_reset.html',
+        email_template_name='accounts/password_reset_email.html',
+        subject_template_name='accounts/password_reset_subject.txt'
+    ), name='password_reset'),
     path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='accounts/password_reset_done.html'), name='password_reset_done'),
     path('password-reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='accounts/password_reset_confirm.html'), name='password_reset_confirm'),
     path('password-reset/complete/', auth_views.PasswordResetCompleteView.as_view(template_name='accounts/password_reset_complete.html'), name='password_reset_complete'),

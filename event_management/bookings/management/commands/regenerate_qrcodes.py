@@ -27,8 +27,9 @@ class Command(BaseCommand):
                 qr._generate_qr_image()
                 qr.save(update_fields=['image'])
                 updated += 1
-                self.stdout.write(f'  ✓ {qr.code}')
+                self.stdout.write(f'  [OK] {qr.code}')
             except Exception as e:
-                self.stdout.write(self.style.ERROR(f'  ✗ {qr.code}: {e}'))
+                self.stdout.write(self.style.ERROR(f'  [ERROR] {qr.code}: {e}'))
+
 
         self.stdout.write(self.style.SUCCESS(f'\nDone — {updated}/{total} QR codes regenerated.'))

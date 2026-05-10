@@ -62,11 +62,17 @@
               </div>
               <div class="col-12">
                 <label class="form-label">Password</label>
-                <input type="password" name="password1" class="form-control" placeholder="Min. 8 characters" required>
+                <div style="position: relative;">
+                  <input type="password" name="password1" id="password1" class="form-control" placeholder="Min. 8 characters" required style="padding-right: 3.5rem;">
+                  <span onclick="togglePassword('password1', this)" style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 0.8rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; z-index: 2; user-select: none;">Show</span>
+                </div>
               </div>
               <div class="col-12">
                 <label class="form-label">Confirm Password</label>
-                <input type="password" name="password2" class="form-control" placeholder="Repeat password" required>
+                <div style="position: relative;">
+                  <input type="password" name="password2" id="password2" class="form-control" placeholder="Repeat password" required style="padding-right: 3.5rem;">
+                  <span onclick="togglePassword('password2', this)" style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 0.8rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; z-index: 2; user-select: none;">Show</span>
+                </div>
               </div>
               {% if form.errors %}
               <div class="col-12">
@@ -91,6 +97,16 @@
   </div>
 </div>
 <script>
+function togglePassword(id, el) {
+  const input = document.getElementById(id);
+  if (input.type === 'password') {
+    input.type = 'text';
+    el.textContent = 'Hide';
+  } else {
+    input.type = 'password';
+    el.textContent = 'Show';
+  }
+}
 function selectRole(role) {
   document.getElementById('role_' + role).checked = true;
   ['attendee','organizer'].forEach(r => {

@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'cloudinary_storage',
     'django.contrib.staticfiles',
     'cloudinary',
+
     'crispy_forms',
     'crispy_bootstrap5',
     'accounts',
@@ -102,37 +103,50 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Only include STATICFILES_DIRS if the directory exists
+_static_dir = BASE_DIR / 'static'
+STATICFILES_DIRS = [_static_dir] if _static_dir.is_dir() else []
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Cloudinary Configuration for Production Media
-USE_CLOUDINARY = os.environ.get('USE_CLOUDINARY', 'True') == 'True'
+_cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME')
+_api_key = os.environ.get('CLOUDINARY_API_KEY')
+_api_secret = os.environ.get('CLOUDINARY_API_SECRET')
+_has_cloudinary_creds = all([_cloud_name, _api_key, _api_secret])
+
+USE_CLOUDINARY = os.environ.get('USE_CLOUDINARY', 'True') == 'True' and _has_cloudinary_creds
+
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage" if USE_CLOUDINARY else "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
 if USE_CLOUDINARY:
     CLOUDINARY_STORAGE = {
-        'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
-        'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
-        'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+        'CLOUD_NAME': _cloud_name,
+        'API_KEY': _api_key,
+        'API_SECRET': _api_secret,
     }
-    STORAGES = {
-        "default": {
-            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-        },
-    }
-else:
-    STORAGES = {
-        "default": {
-            "BACKEND": "django.core.files.storage.FileSystemStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-        },
-    }
+elif os.environ.get('USE_CLOUDINARY', 'True') == 'True' and not _has_cloudinary_creds:
+    import warnings
+    warnings.warn(
+        "USE_CLOUDINARY is True but Cloudinary credentials are missing. "
+        "Falling back to local file storage. Set CLOUDINARY_CLOUD_NAME, "
+        "CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to use Cloudinary.",
+        RuntimeWarning
+    )
+
+# Compatibility shim for libraries still accessing STATICFILES_STORAGE/DEFAULT_FILE_STORAGE
+STATICFILES_STORAGE = STORAGES['staticfiles']['BACKEND']
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -158,4 +172,7 @@ PAYSTACK_PUBLIC_KEY = os.environ.get('PAYSTACK_PUBLIC_KEY')
 PAYSTACK_SECRET_KEY = os.environ.get('PAYSTACK_SECRET_KEY')
 PAYSTACK_WEBHOOK_SECRET = os.environ.get('PAYSTACK_WEBHOOK_SECRET', '')
 PAYSTACK_BASE_URL = os.environ.get('PAYSTACK_BASE_URL', 'https://api.paystack.co')
+
+# Site Configuration
+SITE_URL = os.environ.get('SITE_URL', 'http://localhost:8000')
 

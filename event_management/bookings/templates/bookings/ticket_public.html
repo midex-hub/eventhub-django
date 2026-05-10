@@ -262,6 +262,36 @@
       </div>
       {% endif %}
 
+      <!-- Organizer Actions -->
+      {% if user.is_authenticated and not qr.is_used %}
+        {% if user == booking.event.organizer or user.is_admin %}
+        <div style="margin-top: 1.5rem;" id="checkin-container">
+          <button id="btn-checkin" class="btn-checkin" style="
+            width: 100%;
+            padding: 1rem;
+            background: #4ade80;
+            color: #052e16;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: transform 0.2s, background 0.2s;
+          ">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.42-6.446z"/>
+            </svg>
+            Check In Attendee
+          </button>
+        </div>
+        {% endif %}
+      {% endif %}
+
       <div class="note">
         <strong style="color:#555b57;">EventHub</strong> &nbsp;·&nbsp; Ticket code: {{ qr.code }}<br>
         This page is your digital ticket. Please show it at the entrance.
@@ -269,5 +299,38 @@
 
     </div>
   </div>
+
+  <script>
+    document.getElementById('btn-checkin')?.addEventListener('click', function() {
+      const btn = this;
+      btn.disabled = true;
+      btn.innerHTML = 'Processing...';
+      
+      fetch("{% url 'ticket_checkin' qr.code %}", {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          alert(data.message);
+          window.location.reload();
+        } else {
+          alert('Error: ' + data.message);
+          btn.disabled = false;
+          btn.innerHTML = 'Check In Attendee';
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+        btn.disabled = false;
+        btn.innerHTML = 'Check In Attendee';
+      });
+    });
+  </script>
 </body>
 </html>

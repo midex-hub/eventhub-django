@@ -4,7 +4,7 @@ services:
     env: python
     rootDir: event_management
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn event_management.wsgi:application --chdir event_management
+    startCommand: gunicorn event_management.wsgi:application
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -16,6 +16,14 @@ services:
         value: "False"
       - key: ALLOWED_HOSTS
         value: "*"
+      - key: USE_CLOUDINARY
+        value: "False"
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
 
 databases:
   - name: eventhub_db

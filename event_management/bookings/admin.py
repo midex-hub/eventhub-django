@@ -19,8 +19,15 @@ class BookingAdmin(admin.ModelAdmin):
 
 @admin.register(QRCode)
 class QRCodeAdmin(admin.ModelAdmin):
-    list_display = ['booking_item', 'code', 'used_at']
+    list_display = ['booking_item', 'code', 'is_used', 'used_at']
     readonly_fields = ['used_at']
+    actions = ['regenerate_qr_codes']
+
+    @admin.action(description='Regenerate selected QR codes')
+    def regenerate_qr_codes(self, request, queryset):
+        for qr in queryset:
+            qr.regenerate_image()
+        self.message_user(request, f"Successfully regenerated {queryset.count()} QR codes.")
 
 
 @admin.register(CheckIn)

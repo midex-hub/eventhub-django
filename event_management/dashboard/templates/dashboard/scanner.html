@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}Scan Ticket{% endblock %}
+{% block content %}
+<div style="min-height: calc(100vh - 72px); display: flex; align-items: center; padding: 3rem 0; background: radial-gradient(ellipse at 50% 0%, rgba(255,77,0,0.08) 0%, transparent 60%);">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 text-center">
+        <h1 style="font-family: 'Syne', sans-serif; margin-bottom: 0.5rem;">Scan Ticket</h1>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">Point your camera at an EventHub ticket QR code</p>
+        
+        <div id="reader-container" style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; overflow: hidden; position: relative;">
+          <div id="reader" style="width: 100%;"></div>
+          <div id="loading-message" style="padding: 4rem 2rem;">
+            <div class="spinner-border text-primary mb-3" role="status"></div>
+            <p>Initializing camera...</p>
+          </div>
+        </div>
+
+        <div id="result-message" class="mt-4 d-none">
+          <div class="alert alert-success d-flex align-items-center justify-content-center gap-2">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>QR Detected! Redirecting...</span>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <a href="{% url 'dashboard_redirect' %}" class="btn btn-outline-light">Back to Dashboard</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+  function onScanSuccess(decodedText, decodedResult) {
+    // Stop scanning once a result is found
+    html5QrcodeScanner.clear();
+    
+    document.getElementById('result-message').classList.remove('d-none');
+    
+    // Check if it's an EventHub URL
+    if (decodedText.includes('/ticket/qr/')) {
+        // It's a full URL, redirect directly
+        window.location.href = decodedText;
+    } else if (decodedText.startsWith('QR')) {
+        // It's just the code, build the URL
+        window.location.href = "/ticket/qr/" + decodedText + "/";
+    } else {
+        alert("Invalid QR Code: " + decodedText);
+        location.reload(); // Restart
+    }
+  }
+
+  function onScanFailure(error) {
+    // We can ignore most failures as they happen during frame analysis
+  }
+
+  let html5QrcodeScanner = new Html5QrcodeScanner(
+    "reader", 
+    { 
+        fps: 10, 
+        qrbox: {width: 250, height: 250},
+        aspectRatio: 1.0
+    },
+    /* verbose= */ false
+  );
+  
+  html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+  
+  // Hide loading message once camera starts
+  setTimeout(() => {
+    const loading = document.getElementById('loading-message');
+    if (loading) loading.style.display = 'none';
+  }, 2000);
+</script>
+
+<style>
+  #reader {
+    border: none !important;
+  }
+  #reader__dashboard_section_csr button, 
+  #reader__dashboard_section_swaplink {
+    background: var(--accent) !important;
+    color: white !important;
+    border: none !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    margin: 10px 0 !important;
+  }
+  #reader video {
+    border-radius: 0 !important;
+  }
+</style>
+{% endblock %}

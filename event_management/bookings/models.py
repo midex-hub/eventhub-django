@@ -70,7 +70,7 @@ class QRCode(models.Model):
 
     def _generate_qr_image(self):
         # Build full URL so scanning the QR opens the ticket page directly
-        site_url = getattr(settings, 'SITE_URL', 'http://localhost:8000').rstrip('/')
+        site_url = settings.SITE_URL.rstrip('/')
         ticket_path = reverse('ticket_public', kwargs={'code': self.code})
         ticket_url = f"{site_url}{ticket_path}"
 
@@ -80,7 +80,16 @@ class QRCode(models.Model):
         img = qr.make_image(fill_color="black", back_color="white")
         buffer = io.BytesIO()
         img.save(buffer, format='PNG')
-        self.image.save(f'{self.code}.png', ContentFile(buffer.getvalue()), save=False)
+        
+        # If there's an existing image, we might want to delete it or overwrite it
+        # self.image.save will handle the saving to storage
+        filename = f'{self.code}.png'
+        self.image.save(filename, ContentFile(buffer.getvalue()), save=False)
+
+    def regenerate_image(self):
+        """Force regeneration of the QR code image, useful if SITE_URL changes"""
+        self._generate_qr_image()
+        self.save()
 
 
 class CheckIn(models.Model):

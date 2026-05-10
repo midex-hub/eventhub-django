@@ -102,3 +102,28 @@ def cancel_booking(request, booking_id):
         booking.save()
         messages.success(request, 'Booking cancelled successfully. Your refund will be processed by the organizer.')
     return redirect('attendee_dashboard')
+
+
+@login_required
+def check_in_ajax_view(request, code):
+    """Mark a ticket as used. Only for organizers/admins."""
+    qr = get_object_or_404(QRCode, code=code)
+    event = qr.booking_item.booking.event
+    
+    # Check permission: Must be the organizer of this event or an admin
+    if not (request.user == event.organizer or request.user.is_admin):
+        return JsonResponse({'status': 'error', 'message': 'Permission denied.'}, status=403)
+        
+    if qr.is_used:
+        return JsonResponse({'status': 'error', 'message': 'This ticket has already been used.'}, status=400)
+    
+    from django.utils import timezone
+    from .models import CheckIn
+    
+    qr.is_used = True
+    qr.used_at = timezone.now()
+    qr.save()
+    
+    CheckIn.objects.create(qr_code=qr, checked_in_by=request.user)
+    
+    return JsonResponse({'status': 'success', 'message': 'Attendee checked in successfully!'})
