@@ -1,9 +1,13 @@
 import uuid
+import logging
+from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
 from django.utils.html import strip_tags
 from django.template.loader import render_to_string
 from .models import CustomUser
+
+logger = logging.getLogger(__name__)
 
 
 def generate_verification_token():
@@ -28,10 +32,15 @@ def send_verification_email(user: CustomUser, request):
     )
     plain_message = strip_tags(html_message)
     
-    send_mail(
-        subject,
-        plain_message,
-        'noreply@eventhub.com', 
-        [user.email],
-        html_message=html_message,
-    )
+    from_email = settings.DEFAULT_FROM_EMAIL or settings.EMAIL_HOST_USER or 'noreply@eventhub.com'
+    
+    try:
+        send_mail(
+            subject,
+            plain_message,
+            from_email,
+            [user.email],
+            html_message=html_message,
+        )
+    except Exception as e:
+        logger.error(f"Failed to send verification email to {user.email}: {e}")
