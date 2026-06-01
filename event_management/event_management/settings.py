@@ -76,17 +76,10 @@ WSGI_APPLICATION = 'event_management.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL', f"mysql://{os.environ.get('DB_USER', 'root')}:{os.environ.get('DB_PASSWORD', '')}@{os.environ.get('DB_HOST', 'localhost')}:{os.environ.get('DB_PORT', '3306')}/{os.environ.get('DB_NAME', 'event_db')}"),
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600,
-        ssl_require=not DEBUG
     )
 }
-
-if not DATABASES['default']:
-    DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
@@ -105,20 +98,20 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Only include STATICFILES_DIRS if the directory exists
+
 _static_dir = BASE_DIR / 'static'
 STATICFILES_DIRS = [_static_dir] if _static_dir.is_dir() else []
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Cloudinary Configuration for Production Media
+
 _cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME')
 _api_key = os.environ.get('CLOUDINARY_API_KEY')
 _api_secret = os.environ.get('CLOUDINARY_API_SECRET')
 _has_cloudinary_creds = all([_cloud_name, _api_key, _api_secret])
 
-USE_CLOUDINARY = os.environ.get('USE_CLOUDINARY', 'True') == 'True' and _has_cloudinary_creds
+USE_CLOUDINARY = os.environ.get('USE_CLOUDINARY', 'False') == 'True' and _has_cloudinary_creds
 
 STORAGES = {
     "default": {
@@ -130,6 +123,7 @@ STORAGES = {
 }
 
 if USE_CLOUDINARY:
+    
     CLOUDINARY_STORAGE = {
         'CLOUD_NAME': _cloud_name,
         'API_KEY': _api_key,
@@ -144,8 +138,8 @@ elif os.environ.get('USE_CLOUDINARY', 'True') == 'True' and not _has_cloudinary_
         RuntimeWarning
     )
 
-# Compatibility shim for libraries still accessing STATICFILES_STORAGE/DEFAULT_FILE_STORAGE
-STATICFILES_STORAGE = STORAGES['staticfiles']['BACKEND']
+# Compatibility shim removed as it conflicts with STORAGES in Django 4.2+
+# STATICFILES_STORAGE = STORAGES['staticfiles']['BACKEND']
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
