@@ -1,7 +1,10 @@
+import logging
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.decorators import method_decorator
+
+logger = logging.getLogger(__name__)
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Count, Sum
@@ -54,6 +57,7 @@ def create_event(request):
                 event.poster = request.FILES['poster']
                 event.save()
             except Exception as e:
+                logger.exception('Poster upload failed for event %s: %s', event.id, e)
                 messages.error(request, f'Could not upload poster image. Please try again or use a different file.')
         # Create ticket types
         names = request.POST.getlist('ticket_name[]')
@@ -86,6 +90,7 @@ def edit_event(request, event_id):
             try:
                 event.poster = request.FILES['poster']
             except Exception as e:
+                logger.exception('Poster upload failed for event %s: %s', event.id, e)
                 messages.error(request, f'Could not upload poster image. Please try again or use a different file.')
         event.save()
         messages.success(request, 'Event updated successfully!')
