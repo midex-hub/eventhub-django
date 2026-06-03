@@ -4,7 +4,6 @@ import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
 
-
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,16 +22,26 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
+_cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME')
+_api_key = os.environ.get('CLOUDINARY_API_KEY')
+_api_secret = os.environ.get('CLOUDINARY_API_SECRET')
+_has_cloudinary_creds = all([_cloud_name, _api_key, _api_secret])
+
+USE_CLOUDINARY = os.environ.get('USE_CLOUDINARY', 'False') == 'True' and _has_cloudinary_creds
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',
     'django.contrib.staticfiles',
-    'cloudinary',
+]
 
+if USE_CLOUDINARY:
+    INSTALLED_APPS += ['cloudinary_storage', 'cloudinary']
+
+INSTALLED_APPS += [
     'crispy_forms',
     'crispy_bootstrap5',
     'accounts',
@@ -106,13 +115,6 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
-_cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME')
-_api_key = os.environ.get('CLOUDINARY_API_KEY')
-_api_secret = os.environ.get('CLOUDINARY_API_SECRET')
-_has_cloudinary_creds = all([_cloud_name, _api_key, _api_secret])
-
-USE_CLOUDINARY = os.environ.get('USE_CLOUDINARY', 'False') == 'True' and _has_cloudinary_creds
-
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage" if USE_CLOUDINARY else "django.core.files.storage.FileSystemStorage",
@@ -123,23 +125,11 @@ STORAGES = {
 }
 
 if USE_CLOUDINARY:
-    
     CLOUDINARY_STORAGE = {
         'CLOUD_NAME': _cloud_name,
         'API_KEY': _api_key,
         'API_SECRET': _api_secret,
     }
-elif os.environ.get('USE_CLOUDINARY', 'True') == 'True' and not _has_cloudinary_creds:
-    import warnings
-    warnings.warn(
-        "USE_CLOUDINARY is True but Cloudinary credentials are missing. "
-        "Falling back to local file storage. Set CLOUDINARY_CLOUD_NAME, "
-        "CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to use Cloudinary.",
-        RuntimeWarning
-    )
-
-# Compatibility shim removed as it conflicts with STORAGES in Django 4.2+
-# STATICFILES_STORAGE = STORAGES['staticfiles']['BACKEND']
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
