@@ -15,15 +15,13 @@ def generate_verification_token():
     return str(uuid.uuid4())
 
 
-def send_verification_email(user: CustomUser, request):
+def send_verification_email(user: CustomUser, request=None):
     """Send email verification email to user."""
     token = generate_verification_token()
     user.email_verification_token = token
     user.save(update_fields=['email_verification_token'])
     
-    verify_url = request.build_absolute_uri(
-        reverse('verify_email', kwargs={'token': token})
-    )
+    verify_url = f"{settings.SITE_URL.rstrip('/')}{reverse('verify_email', kwargs={'token': token})}"
     
     subject = 'Verify your email address'
     html_message = render_to_string(
