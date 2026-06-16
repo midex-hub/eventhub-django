@@ -17,13 +17,13 @@ services:
       - key: ALLOWED_HOSTS
         value: "*"
       - key: USE_CLOUDINARY
-        value: "False"
+        value: "True"
       - key: CLOUDINARY_CLOUD_NAME
-        sync: false
+        value: "dqf5gwaus"
       - key: CLOUDINARY_API_KEY
-        sync: false
+        value: "796246568861258"
       - key: CLOUDINARY_API_SECRET
-        sync: false
+        value: "ACM3VlwOqiVjCKqWJ_y_JhklUHo"
 
 databases:
   - name: eventhub_db
