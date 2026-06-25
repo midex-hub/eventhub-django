@@ -122,10 +122,13 @@ def payment_process(request, booking_id):
                 ticket_type.quantity_sold += item.quantity
                 ticket_type.save()
             
-            # Generate QR codes
+            # Generate QR codes (catch storage errors like Cloudinary being down)
             for item in booking.items.all():
                 from bookings.models import QRCode
-                QRCode.objects.get_or_create(booking_item=item)
+                try:
+                    QRCode.objects.get_or_create(booking_item=item)
+                except Exception as qr_err:
+                    logger.warning(f"QR code generation failed for booking {booking.id} item {item.id}: {str(qr_err)}")
             
             # Redirect to ticket detail for logged-in users, otherwise to booking success
             first_item = booking.items.first()
@@ -193,10 +196,13 @@ def payment_callback(request):
                         ticket_type.quantity_sold += item.quantity
                         ticket_type.save()
                     
-                    # Generate QR codes
+                    # Generate QR codes (catch storage errors like Cloudinary being down)
                     for item in booking.items.all():
                         from bookings.models import QRCode
-                        QRCode.objects.get_or_create(booking_item=item)
+                        try:
+                            QRCode.objects.get_or_create(booking_item=item)
+                        except Exception as qr_err:
+                            logger.warning(f"QR code generation failed for booking {booking.id} item {item.id}: {str(qr_err)}")
                     
                     # Redirect to ticket detail for logged-in users, otherwise to booking success
                     first_item = booking.items.first()
