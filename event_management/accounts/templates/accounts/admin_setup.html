@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Admin Setup{% endblock %}
+{% block content %}
+<div class="container d-flex align-items-center justify-content-center" style="min-height: 70vh;">
+  <div style="max-width: 420px; width: 100%;">
+    <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem;">
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <i class="bi bi-shield-lock" style="font-size: 2.5rem; color: var(--accent);"></i>
+        <h3 style="font-family: 'Syne', sans-serif; margin-top: 1rem;">Create Admin Account</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">This is a one-time setup link.</p>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Username</label>
+          <input type="text" name="username" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input type="password" name="password" class="form-control" minlength="8" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Create Admin</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

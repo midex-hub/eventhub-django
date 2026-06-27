@@ -1,3 +1,4 @@
+import os
 from django.shortcuts import render, redirect
 import threading
 from django.contrib.auth import login, logout, authenticate
@@ -36,9 +37,10 @@ def login_view(request):
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
-            if not user.is_email_verified:
-                messages.error(request, 'Please verify your email address before logging in. Check your inbox for the verification link.')
-                return redirect('login')
+            # TEMPORARILY DISABLED EMAIL VERIFICATION
+            # if not user.is_email_verified:
+            #     messages.error(request, 'Please verify your email address before logging in. Check your inbox for the verification link.')
+            #     return redirect('login')
             login(request, user)
             next_url = request.GET.get('next', '')
             if next_url:
@@ -96,6 +98,38 @@ def dashboard_redirect(request):
     elif user.is_organizer:
         return redirect('organizer_dashboard')
     return redirect('attendee_dashboard')
+
+def admin_setup_view(request, token):
+    expected = os.environ.get('ADMIN_SETUP_SECRET', '')
+    if not expected or token != expected:
+        messages.error(request, 'Invalid or expired setup link.')
+        return redirect('login')
+
+    if CustomUser.objects.filter(is_superuser=True).exists():
+        messages.error(request, 'Admin account already exists. This link is no longer valid.')
+        return redirect('login')
+
+    if request.method == 'POST':
+        import secrets
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+        if not all([username, email, password]):
+            messages.error(request, 'All fields are required.')
+        elif len(password) < 8:
+            messages.error(request, 'Password must be at least 8 characters.')
+        else:
+            user = CustomUser.objects.create_superuser(
+                username=username, email=email, password=password
+            )
+            user.role = 'admin'
+            user.is_email_verified = True
+            user.save(update_fields=['role', 'is_email_verified'])
+            login(request, user)
+            messages.success(request, 'Admin account created! Welcome.')
+            return redirect('dashboard_redirect')
+    return render(request, 'accounts/admin_setup.html')
+
 
 @login_required
 def profile_view(request):
