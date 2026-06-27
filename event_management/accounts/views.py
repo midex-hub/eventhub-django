@@ -1,4 +1,3 @@
-import os
 from django.shortcuts import render, redirect
 import threading
 from django.contrib.auth import login, logout, authenticate
@@ -37,7 +36,6 @@ def login_view(request):
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
-            # TEMPORARILY DISABLED EMAIL VERIFICATION
             # if not user.is_email_verified:
             #     messages.error(request, 'Please verify your email address before logging in. Check your inbox for the verification link.')
             #     return redirect('login')
@@ -100,17 +98,10 @@ def dashboard_redirect(request):
     return redirect('attendee_dashboard')
 
 def admin_setup_view(request, token):
-    expected = os.environ.get('ADMIN_SETUP_SECRET', '')
-    if not expected or token != expected:
-        messages.error(request, 'Invalid or expired setup link.')
-        return redirect('login')
-
     if CustomUser.objects.filter(is_superuser=True).exists():
         messages.error(request, 'Admin account already exists. This link is no longer valid.')
         return redirect('login')
-
     if request.method == 'POST':
-        import secrets
         username = request.POST.get('username', '').strip()
         email = request.POST.get('email', '').strip()
         password = request.POST.get('password', '')
