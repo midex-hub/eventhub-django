@@ -15,8 +15,12 @@
           {% endif %}
           <form method="post">
             {% csrf_token %}
-            <input type="hidden" name="email" value="{{ email }}">
             <div class="mb-3">
+              <label class="form-label">Email address</label>
+              <input type="email" name="email" class="form-control" value="{{ email }}" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Verification code</label>
               <input type="text" name="code" class="form-control form-control-lg text-center" placeholder="000000" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" required style="font-size: 1.5rem; letter-spacing: 8px;">
             </div>
             <button type="submit" class="btn btn-primary w-100">Verify Email</button>

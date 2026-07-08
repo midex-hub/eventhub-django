@@ -1,5 +1,6 @@
 import random
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
@@ -27,7 +28,7 @@ def register_view(request):
             user.save()
             send_verification_email(user, request)
             messages.success(request, f'Verification code sent to {user.email}. Check your inbox.')
-            return redirect('verify_email')
+            return redirect(f'{reverse("verify_email")}?email={user.email}')
     else:
         form = RegisterForm()
     return render(request, 'accounts/register.html', {'form': form})
