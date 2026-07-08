@@ -26,10 +26,6 @@ services:
         value: "ACM3VlwOqiVjCKqWJ_y_JhklUHo"
       - key: RESEND_API_KEY
         value: "re_UYDGFWY8_HjdRNg8v7Ftup1DMqrsiWbPf"
-      - key: EMAIL_HOST_USER
-        value: "resend"
-      - key: EMAIL_HOST_PASSWORD
-        value: "re_UYDGFWY8_HjdRNg8v7Ftup1DMqrsiWbPf"
       - key: DEFAULT_FROM_EMAIL
         value: "EventHub <onboarding@resend.dev>"
 

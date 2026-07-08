@@ -12,3 +12,4 @@ django-cloudinary-storage
 qrcode
 pillow
 requests
+resend
