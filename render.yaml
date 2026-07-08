@@ -24,10 +24,12 @@ services:
         value: "796246568861258"
       - key: CLOUDINARY_API_SECRET
         value: "ACM3VlwOqiVjCKqWJ_y_JhklUHo"
-      - key: RESEND_API_KEY
-        value: "re_UYDGFWY8_HjdRNg8v7Ftup1DMqrsiWbPf"
+      - key: EMAIL_HOST_USER
+        value: "filaniisaac62@gmail.com"
+      - key: EMAIL_HOST_PASSWORD
+        value: "ysrdgoosplbpvgku"
       - key: DEFAULT_FROM_EMAIL
-        value: "EventHub <onboarding@resend.dev>"
+        value: "EventHub <filaniisaac62@gmail.com>"
 
 
 databases:
