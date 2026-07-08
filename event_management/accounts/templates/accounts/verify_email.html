@@ -1,27 +1,32 @@
 {% extends 'base.html' %}
-
-{% block title %}Email Verification{% endblock %}
-
+{% block title %}Verify Email{% endblock %}
 {% block content %}
-<div class="container mt-5">
+<div style="min-height: calc(100vh - 72px); display: flex; align-items: center; padding: 3rem 0;">
+  <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="text-center">
-                <h2>Email Verification</h2>
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-                <div class="mt-4">
-                    <a href="{% url 'dashboard_redirect' %}" class="btn btn-primary btn-lg">Go to Dashboard</a>
-                    <a href="{% url 'home' %}" class="btn btn-secondary btn-lg ms-2">Back to Home</a>
-                </div>
+      <div class="col-lg-5">
+        <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 2.5rem;">
+          <h2 style="font-family: 'Syne', sans-serif; margin-bottom: 1.5rem;">Verify Your Email</h2>
+          <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Enter the 6-digit code sent to your email.</p>
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+            {% endfor %}
+          {% endif %}
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="email" value="{{ email }}">
+            <div class="mb-3">
+              <input type="text" name="code" class="form-control form-control-lg text-center" placeholder="000000" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" required style="font-size: 1.5rem; letter-spacing: 8px;">
             </div>
+            <button type="submit" class="btn btn-primary w-100">Verify Email</button>
+          </form>
+          <div class="text-center mt-3">
+            <p class="mb-0" style="color: var(--text-muted); font-size: 0.85rem;">Didn't get a code? <a href="{% url 'login' %}" style="color: var(--accent);">Go back</a></p>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}

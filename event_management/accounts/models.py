@@ -19,6 +19,8 @@ class CustomUser(AbstractUser):
     website_link = models.URLField(max_length=200, blank=True)
     is_email_verified = models.BooleanField(default=False)
     email_verification_token = models.CharField(max_length=100, blank=True)
+    reset_code = models.CharField(max_length=6, blank=True)
+    reset_code_created_at = models.DateTimeField(null=True, blank=True)
     balance = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     created_at = models.DateTimeField(auto_now_add=True)
 
