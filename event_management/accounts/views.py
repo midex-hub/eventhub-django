@@ -17,11 +17,11 @@ def register_view(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.is_email_verified = True
+            user.is_email_verified = False
             user.save()
-            login(request, user)
-            messages.success(request, f'Welcome {user.first_name or user.username}! Your account has been created.')
-            return redirect('dashboard_redirect')
+            send_verification_email(user, request)
+            messages.success(request, 'Registration successful! Please check your email to verify your account before logging in.')
+            return redirect('email_verification_sent')
     else:
         form = RegisterForm()
     return render(request, 'accounts/register.html', {'form': form})
@@ -34,6 +34,9 @@ def login_view(request):
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
+            if not user.is_email_verified:
+                messages.error(request, 'Please verify your email address before logging in. Check your inbox for the verification link.')
+                return redirect('login')
             login(request, user)
             next_url = request.GET.get('next', '')
             if next_url:
