@@ -1,7 +1,6 @@
 Django>=4.0
-mysqlclient         # Keep for local dev if you want, but PostgreSQL is recommended
-psycopg2-binary     # Required for PostgreSQL
-dj-database-url     # Helps handle DATABASE_URL on Render
+psycopg2-binary
+dj-database-url
 python-dotenv
 django-crispy-forms
 crispy-bootstrap5

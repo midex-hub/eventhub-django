@@ -155,7 +155,7 @@ PAYSTACK_WEBHOOK_SECRET = os.environ.get('PAYSTACK_WEBHOOK_SECRET', '')
 PAYSTACK_BASE_URL = os.environ.get('PAYSTACK_BASE_URL', 'https://api.paystack.co')
 
 # Site Configuration
-# SITE_URL = os.environ.get('SITE_URL', 'https://Midex1.pythonanywhere.com')
+SITE_URL = os.environ.get('SITE_URL', 'https://Midex1.pythonanywhere.com')
 
 # cd ~/eventhub-django/event_management
 # source ~/eventhub-django/myenv/bin/activate
